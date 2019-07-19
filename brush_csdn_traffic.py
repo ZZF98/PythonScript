@@ -1,3 +1,4 @@
+# 刷csdn的访问量
 import datetime
 import logging
 import random
@@ -27,7 +28,7 @@ url = 'https://blog.csdn.net' + csdnUser
 sum = 100000
 
 
-# 获取页面所有外链的列表
+# 获取页面所有文章的列表
 def getExternalLinks(bsObj, excludeUrl):
     externalLinks = []
     # 找出所有以"http"或"www"开头且不包含当前URL的链接,/qq_37598011
@@ -42,6 +43,7 @@ def getExternalLinks(bsObj, excludeUrl):
     return externalLinks
 
 
+# 获取地址
 def splitAddress(address):
     if "https://" in address:
         addressParts = address.replace("https://", "").split("/")
@@ -50,15 +52,18 @@ def splitAddress(address):
     return addressParts
 
 
-def getRandomExternalLink(startingPage, lists):
+# 获取所有连接
+def getAllLink(startingPage, lists):
     html = urlopen(startingPage)
     bsObj = BeautifulSoup(html)
     externalLinks = getExternalLinks(bsObj, splitAddress(startingPage)[0])
     for a in externalLinks:
-        lists.append(a)
+        if a not in lists:
+            lists.append(a)
 
 
-def getTiltle(url):
+# 获取浏览数
+def getTiltleNumber(url):
     html = urlopen(url)
     bsObj = BeautifulSoup(html)
     obs = bsObj.find("div", {"class": "grade-box clearfix"})
@@ -69,13 +74,20 @@ def getTiltle(url):
 
 
 def main(url, lists, sum):
-    title = getTiltle(url)
+    title = getTiltleNumber(url)
     if title > sum:
         print("已经达到访问量：" + title)
     else:
-        for i in range(1, 9):
+        last = 0
+        i = 1
+        while True:
             newUrl = url + "/article/list/" + str(i)
-            getRandomExternalLink(newUrl, lists)
+            getAllLink(newUrl, lists)
+            if last == len(lists):
+                break
+            else:
+                i += 1
+                last = len(lists)
         urlList = list(set(lists))
         count = 0
         while title <= sum:
@@ -89,7 +101,8 @@ def main(url, lists, sum):
             print(bsObj)
             print("----------------------------------------------------------------------------")
             if count % 100 == 0:
-                title = getTiltle(url)
+                title = getTiltleNumber(url)
 
 
-main(url, lists, sum)
+if __name__ == '__main__':
+    main(url, lists, sum)
