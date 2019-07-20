@@ -5,8 +5,11 @@ import random
 import re
 from urllib import request
 from urllib.request import urlopen
+from selenium import webdriver
+import time
 
 from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +23,7 @@ lists = []
 
 # csdn用户
 csdnUser = '/qq_37598011'
-
+# https://blog.csdn.net/weixin_44727140
 # 地址
 url = 'https://blog.csdn.net' + csdnUser
 
@@ -104,5 +107,43 @@ def main(url, lists, sum):
                 title = getTiltleNumber(url)
 
 
+def main2(url, lists, sum):
+    driver = webdriver.PhantomJS(executable_path='download/phantomjs.exe')
+    driver.get(url)
+    time.sleep(1)
+    try:
+        pageNumber = driver.find_elements_by_class_name("ui-pager")
+        title = int(driver.find_element(By.CLASS_NAME, "grade-box,clearfix").find_elements(By.TAG_NAME, "dl")[
+                        -3].find_element(By.TAG_NAME, "dd").get_attribute("title"))
+    except:
+        pageNumber = []
+
+    if pageNumber == []:
+        pageNumber = 1
+    else:
+        pageNumber = pageNumber[-3].text
+
+    for i in range(1, int(pageNumber) + 1):
+        newUrl = url + "/article/list/" + str(i)
+        getAllLink(newUrl, lists)
+
+    urlList = list(set(lists))
+    count = 0
+    while title <= sum:
+        count += 1
+        randomUrl = urlList[random.randint(0,
+                                           len(urlList) - 1)]
+        req = request.Request(randomUrl, headers=headers, method='GET')
+        html = urlopen(req)
+        print("---------------------------" + str(count) + "------------------------------------------------")
+        bsObj = BeautifulSoup(html)
+        print(bsObj)
+        print("----------------------------------------------------------------------------")
+        if count % 100 == 0:
+            title = getTiltleNumber(url)
+
+
 if __name__ == '__main__':
-    main(url, lists, sum)
+    # 方式一：
+    # main(url, lists, sum)
+    main2(url, lists, sum)
