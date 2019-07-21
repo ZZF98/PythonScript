@@ -4,6 +4,7 @@ import logging
 import random
 import re
 from urllib import request
+from urllib import parse
 from urllib.request import urlopen
 from selenium import webdriver
 import time
@@ -146,4 +147,14 @@ def main2(url, lists, sum):
 if __name__ == '__main__':
     # 方式一：
     # main(url, lists, sum)
-    main2(url, lists, sum)
+    # main2(url, lists, sum)
+    # 下载百度
+    # request.urlretrieve("http://www.baidu.com", "index.html")
+    parameter = {"wd": "猪"}
+
+    url = "http://www.baidu.com/s?" + parse.urlencode(parameter)
+    req = urlopen(url)
+    print(BeautifulSoup(req))
+    encode = parse.urlencode(parameter)
+    qs = parse.parse_qs(encode)
+    print(qs)
