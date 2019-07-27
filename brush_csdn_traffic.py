@@ -29,7 +29,7 @@ csdnUser = '/qq_37598011'
 url = 'https://blog.csdn.net' + csdnUser
 
 # 游览数总数
-sum = 100000
+sum = 200000
 
 
 # 获取页面所有文章的列表
@@ -147,14 +147,14 @@ def main2(url, lists, sum):
 if __name__ == '__main__':
     # 方式一：
     # main(url, lists, sum)
-    # main2(url, lists, sum)
+    main2(url, lists, sum)
     # 下载百度
     # request.urlretrieve("http://www.baidu.com", "index.html")
-    parameter = {"wd": "猪"}
-
-    url = "http://www.baidu.com/s?" + parse.urlencode(parameter)
-    req = urlopen(url)
-    print(BeautifulSoup(req))
-    encode = parse.urlencode(parameter)
-    qs = parse.parse_qs(encode)
-    print(qs)
+    # parameter = {"wd": "猪"}
+    #
+    # url = "http://www.baidu.com/s?" + parse.urlencode(parameter)
+    # req = urlopen(url)
+    # print(BeautifulSoup(req))
+    # encode = parse.urlencode(parameter)
+    # qs = parse.parse_qs(encode)
+    # print(qs)
