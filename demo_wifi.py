@@ -1,3 +1,4 @@
+# ping ip和查询路由
 # import psutil
 #
 #

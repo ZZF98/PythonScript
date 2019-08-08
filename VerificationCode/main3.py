@@ -1,3 +1,4 @@
+# 识别验证码
 # -*-coding:utf-8-*-
 import os
 

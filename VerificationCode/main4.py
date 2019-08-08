@@ -1,3 +1,4 @@
+# 识别验证码
 import os
 import pytesseract
 from PIL import Image

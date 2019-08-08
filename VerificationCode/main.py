@@ -1,3 +1,4 @@
+# 识别验证码
 from PIL import Image
 from pytesseract import *
 from fnmatch import fnmatch
@@ -314,7 +315,7 @@ def main():
             file = './out_img/' + img_name.split('.')[0] + '-interferencePoint.jpg'
             #         # 识别验证码
             str_img = image_to_string(Image.open(file), lang='eng',
-                                                        config='--psm 10')  # 单个字符是10，一行文本是7
+                                      config='--psm 10')  # 单个字符是10，一行文本是7
             #     except Exception as err:
             #         pass
             print('识别为：%s' % str_img)

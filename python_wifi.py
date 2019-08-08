@@ -1,3 +1,4 @@
+# 扫描wifi和连接
 import pywifi
 import time
 # 保存包中写义的常量

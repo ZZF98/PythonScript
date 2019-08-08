@@ -1,3 +1,4 @@
+# 扫描ip
 # import socket
 
 # 查看当前主机名
@@ -29,7 +30,7 @@ from scapy.all import *
 from scapy.layers.inet import ICMP, IP
 
 for i in range(100):
-    # 生成目标IP
+    # 生成目标IPip
     ip = "192.168.31." + str(i)
     # 打印生成的目标IP
     print("=目标ip为=>", ip)
