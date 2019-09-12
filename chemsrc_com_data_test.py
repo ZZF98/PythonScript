@@ -11,7 +11,7 @@ host = 'https://www.chemsrc.com'
 # url页面列表
 urlList = []
 # url页面上的路径列表
-urlDateList = []
+urlDateList = ['https://www.chemsrc.com/cas/6222-55-5_46532.html', 'https://www.chemsrc.com/cas/5434-29-7_47643.html']
 logger = logging.getLogger(__name__)
 
 headers = {
@@ -121,13 +121,34 @@ def getDriver():
     return driver
 
 
+def creatData(driver):
+    rowCount = 1
+    for urlDate in urlDateList:
+        print("---------------------------" + str(rowCount) + "------------------------------------------------")
+        errcout = 0
+        while True:
+            try:
+                # 删除代理并重新获取
+                if errcout > 5:
+                    print("删除代理" + headers["preProxy"])
+                    delete_proxy(headers["preProxy"])
+                    driver = getDriver()
+                driver.get(urlDate)
+                time.sleep(1)
+                # 获取图片url
+                imgUrl = driver.find_element_by_id("structdiv").find_element_by_tag_name("img").get_attribute("src")
+
+                print(imgUrl)
+                break
+            except:
+                errcout += 1
+                print("url:" + urlDate + "  错误次数:" + str(errcout))
+
+
 def main():
     driver = getDriver()
-    # 获取所有url
-    creatUrlDate(driver)
-    # 获取所有url下的url详情列表
-    getAllUrlDate(driver)
-    # 获取详细数据
+    # 获取详细数据并新增
+    creatData(driver)
 
 
 if __name__ == '__main__':
