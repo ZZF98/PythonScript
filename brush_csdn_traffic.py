@@ -3,21 +3,48 @@ import datetime
 import logging
 import random
 import re
-from urllib import request
-from urllib import parse
-from urllib.request import urlopen
-from selenium import webdriver
 import time
+from urllib import request
+from urllib.request import urlopen
 
 from bs4 import BeautifulSoup
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 logger = logging.getLogger(__name__)
 
 random.seed(datetime.datetime.now())
+# 设置代理
+user_agent_list = [ \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1" \
+    "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", \
+    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1", \
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", \
+    "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", \
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", \
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", \
+    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+]
+# https://www.kuaidaili.com/free/
+request.ProxyHandler({"http": "114.234.83.42:9000", "http": "114.235.23.100:9000"})
+proxies = {
+    "http": "http://114.234.83.42:9000",
+    "http": "http://114.235.23.100:9000",
+}
+# r=requests.get("http://youtube.com", proxies=proxies)
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0'
+    'User-Agent': ''
 }
 
 lists = []
@@ -29,7 +56,7 @@ csdnUser = '/qq_37598011'
 url = 'https://blog.csdn.net' + csdnUser
 
 # 游览数总数
-sum = 200000
+sum = 2000000
 
 
 # 获取页面所有文章的列表
@@ -98,7 +125,11 @@ def main(url, lists, sum):
             count += 1
             randomUrl = urlList[random.randint(0,
                                                len(urlList) - 1)]
+            headers["User-Agent"] = random.choice(user_agent_list)
+            # request.build_opener(proxies)
             req = request.Request(randomUrl, headers=headers, method='GET')
+            # 代理
+            # req = requests.get(randomUrl, allow_redirects=False, headers=headers, proxies=proxies)
             html = urlopen(req)
             print("---------------------------" + str(count) + "------------------------------------------------")
             bsObj = BeautifulSoup(html)
@@ -134,7 +165,10 @@ def main2(url, lists, sum):
         count += 1
         randomUrl = urlList[random.randint(0,
                                            len(urlList) - 1)]
+        headers["User-Agent"] = random.choice(user_agent_list)
         req = request.Request(randomUrl, headers=headers, method='GET')
+        # 代理
+        # req = requests.get(randomUrl, allow_redirects=False, headers=headers, proxies=proxies)
         html = urlopen(req)
         print("---------------------------" + str(count) + "------------------------------------------------")
         bsObj = BeautifulSoup(html)
@@ -146,8 +180,8 @@ def main2(url, lists, sum):
 
 if __name__ == '__main__':
     # 方式一：
-    # main(url, lists, sum)
-    main2(url, lists, sum)
+    main(url, lists, sum)
+    # main2(url, lists, sum)
     # 下载百度
     # request.urlretrieve("http://www.baidu.com", "index.html")
     # parameter = {"wd": "猪"}
