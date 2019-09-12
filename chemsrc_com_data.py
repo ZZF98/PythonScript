@@ -1,11 +1,17 @@
 import logging
 import time
 
+import requests
 from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver import DesiredCapabilities, Proxy
+from selenium.webdriver.common.proxy import ProxyType
 
 url = 'https://www.chemsrc.com/casindex/'
+host = 'https://www.chemsrc.com'
+# url页面列表
 urlList = []
+# url页面上的路径列表
+urlDateList = []
 logger = logging.getLogger(__name__)
 
 headers = {
@@ -22,43 +28,103 @@ headers = {
 
 }
 
+preProxy = '119.179.161.126:8060'
 
+
+# proxyPool = ['1.197.204.251:9999', '1.198.72.8:9999']
+
+# 获取代理
+def get_proxy():
+    return requests.get("http://127.0.0.1:5010/get/").json()
+
+
+# 删除
+def delete_proxy(proxy):
+    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
+
+# 获取所有url数据
 def getAllUrlDate(driver):
     rowCount = 1
     for urls in urlList:
         print("---------------------------" + str(rowCount) + "------------------------------------------------")
+        errcout = 0
         while True:
             try:
+                # 删除代理并重新获取
+                if errcout > 5:
+                    print("删除代理" + preProxy)
+                    delete_proxy(preProxy)
+                    driver = getDriver()
                 driver.get(urls)
                 time.sleep(1)
-
+                body = driver.find_element_by_tag_name("tbody").find_elements_by_class_name("rowDat")
+                for row in body:
+                    strs = row.find_elements_by_class_name("v-middle")[0].find_element_by_tag_name("a").get_attribute(
+                        "href")
+                    print(strs)
+                    if strs not in urlDateList:
+                        urlDateList.append(strs)
+                break
             except:
-                print("重试")
-
+                errcout += 1
+                print("url:" + urls + "  错误次数:" + str(errcout))
+        print(urlDateList)
         print("---------------------------" + str(rowCount) + "------------------------------------------------")
         rowCount += 1
         time.sleep(1)
 
 
+# 创建所有页面Url
 def creatUrlDate(driver):
     # 获取页数
-    driver.get(url)
-    time.sleep(1)
-    el = driver.find_element_by_id("casIdxUl").find_elements_by_class_name("disabled")[-1]
-    print("一共:" + el.text)
-    count = el.text[1:-1]
-    for i in range(1, int(count) + 1):
-        strUrl = url + str(i) + ".html"
-        urlList.append(strUrl)
+    errcout = 0
+    while True:
+        try:
+            # 删除代理并重新获取
+            if errcout > 5:
+                print("删除代理" + preProxy)
+                delete_proxy(preProxy)
+                driver = getDriver()
+            driver.get(url)
+            time.sleep(1)
+            el = driver.find_element_by_id("casIdxUl").find_elements_by_class_name("disabled")[-1]
+        except:
+            errcout += 1
+            print("url:" + url + "  错误次数:" + str(errcout))
+        else:
+            print("一共:" + el.text)
+            count = el.text[1:-1]
+            for i in range(1, int(count) + 1):
+                strUrl = url + str(i) + ".html"
+                urlList.append(strUrl)
+            break
 
 
-def main():
+# 获取driver对象
+def getDriver():
     # 构建请求头
     dcap = dict(DesiredCapabilities.PHANTOMJS)
     dcap["phantomjs.page.settings.userAgent"] = (
         headers
     )
+    preProxy = get_proxy().get("proxy")
+    proxy = Proxy(
+        {
+            'proxyType': ProxyType.MANUAL,
+            'httpProxy': get_proxy().get("proxy")
+            # 'httpProxy': proxyPool[random.randint(0,
+            #                                       len(proxyPool) - 1)]  # 代理ip和端口
+        }
+    )
+    # 把代理ip加入到技能中
+    proxy.add_to_capabilities(dcap)
     driver = webdriver.PhantomJS(executable_path='download/phantomjs.exe', desired_capabilities=dcap)
+    return driver
+
+
+def main():
+    driver = getDriver()
     # 获取所有url
     creatUrlDate(driver)
     # 获取所有url下的url详情列表
