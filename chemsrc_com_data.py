@@ -1,4 +1,5 @@
 import logging
+import signal
 import time
 
 import requests
@@ -51,6 +52,8 @@ def getAllUrlDate(driver):
             try:
                 # 删除代理并重新获取
                 if errcout > 5:
+                    driver.service.process.send_signal(signal.SIGTERM)  # kill the specific phantomjs child proc
+                    driver.quit()
                     print("删除代理" + headers["preProxy"])
                     delete_proxy(headers["preProxy"])
                     driver = getDriver()
@@ -81,6 +84,8 @@ def creatUrlDate(driver):
         try:
             # 删除代理并重新获取
             if errcout > 5:
+                driver.service.process.send_signal(signal.SIGTERM)  # kill the specific phantomjs child proc
+                driver.quit()
                 print("删除代理" + headers["preProxy"])
                 delete_proxy(headers["preProxy"])
                 driver = getDriver()

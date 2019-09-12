@@ -137,7 +137,7 @@ def creatData(driver):
                 time.sleep(1)
                 # 获取图片url
                 imgUrl = driver.find_element_by_id("structdiv").find_element_by_tag_name("img").get_attribute("src")
-
+                driver.find_element_by_id()
                 print(imgUrl)
                 break
             except:
