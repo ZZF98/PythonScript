@@ -24,11 +24,9 @@ headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
     'Connection': 'keep-alive',
     'Upgrade-Insecure-Requests': '1',
-    'Sec-Fetch-User': '?1'
-
+    'Sec-Fetch-User': '?1',
+    'preProxy': '119.179.161.126:8060'
 }
-
-preProxy = '119.179.161.126:8060'
 
 
 # proxyPool = ['1.197.204.251:9999', '1.198.72.8:9999']
@@ -53,8 +51,8 @@ def getAllUrlDate(driver):
             try:
                 # 删除代理并重新获取
                 if errcout > 5:
-                    print("删除代理" + preProxy)
-                    delete_proxy(preProxy)
+                    print("删除代理" + headers["preProxy"])
+                    delete_proxy(headers["preProxy"])
                     driver = getDriver()
                 driver.get(urls)
                 time.sleep(1)
@@ -83,8 +81,8 @@ def creatUrlDate(driver):
         try:
             # 删除代理并重新获取
             if errcout > 5:
-                print("删除代理" + preProxy)
-                delete_proxy(preProxy)
+                print("删除代理" + headers["preProxy"])
+                delete_proxy(headers["preProxy"])
                 driver = getDriver()
             driver.get(url)
             time.sleep(1)
@@ -108,11 +106,11 @@ def getDriver():
     dcap["phantomjs.page.settings.userAgent"] = (
         headers
     )
-    preProxy = get_proxy().get("proxy")
+    headers["preProxy"] = get_proxy().get("proxy")
     proxy = Proxy(
         {
             'proxyType': ProxyType.MANUAL,
-            'httpProxy': get_proxy().get("proxy")
+            'httpProxy': headers["preProxy"]
             # 'httpProxy': proxyPool[random.randint(0,
             #                                       len(proxyPool) - 1)]  # 代理ip和端口
         }
