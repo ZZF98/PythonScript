@@ -2,6 +2,7 @@ import logging
 import time
 
 import requests
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities, Proxy
 from selenium.webdriver.common.proxy import ProxyType
@@ -130,15 +131,53 @@ def creatData(driver):
             try:
                 # 删除代理并重新获取
                 if errcout > 5:
+                    driver.quit()
                     print("删除代理" + headers["preProxy"])
                     delete_proxy(headers["preProxy"])
                     driver = getDriver()
+                    errcout = 0
+
+                # 反爬虫
+                driver.set_window_size(800, 800)
                 driver.get(urlDate)
                 time.sleep(1)
                 # 获取图片url
                 imgUrl = driver.find_element_by_id("structdiv").find_element_by_tag_name("img").get_attribute("src")
-                driver.find_element_by_id()
+                tbodyTr = driver.find_element_by_id("baseTbl").find_element_by_tag_name(
+                    "tbody").find_elements_by_tag_name("tr")
+                # 常用名
+                common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].find_element_by_tag_name("a").text
+                # 英文名
+                english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
+                # cas
+                cas = tbodyTr[1].find_elements_by_tag_name("td")[0].find_element_by_tag_name("a").text
+                # 分子量
+                molecular_weight = tbodyTr[1].find_elements_by_tag_name("td")[1].text
+                # 密度
+                density = tbodyTr[2].find_elements_by_tag_name("td")[0].text
+                # 沸点
+                boiling_point = tbodyTr[2].find_elements_by_tag_name("td")[1].text
+                # 分子式
+                molecular_formula = tbodyTr[3].find_elements_by_tag_name("td")[0].text
+                # 熔点
+                melting_point = tbodyTr[3].find_elements_by_tag_name("td")[1].text
+                # msds
+                msds = tbodyTr[4].find_elements_by_tag_name("td")[0].text
+                # 闪点
+                flash_point = tbodyTr[4].find_elements_by_tag_name("td")[1].text
+                print(common_name)
+                print(english_name)
+                print(cas)
+                print(molecular_weight)
+                print(density)
+                print(boiling_point)
+                print(molecular_formula)
+                print(melting_point)
+                print(msds)
+                print(flash_point)
                 print(imgUrl)
+
+
                 break
             except:
                 errcout += 1
