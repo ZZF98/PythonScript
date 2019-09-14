@@ -294,8 +294,11 @@ def creatData(driver, urlDateList):
                 # 删除代理并重新获取
                 if errcout >= retriesCount:
                     driver.quit()
-                    print("删除代理" + headers["preProxy"])
-                    delete_proxy(headers["preProxy"])
+                    try:
+                        print("删除代理" + headers["preProxy"])
+                        delete_proxy(headers["preProxy"])
+                    except:
+                        pass
                     driver = getDriver()
                     errcout = 0
 
