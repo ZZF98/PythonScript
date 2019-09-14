@@ -87,6 +87,7 @@ def insertData(id, data):
         # 修改数据的SQL语句
         sql = """
         INSERT INTO data (
+        id,
         img_url,
         common_name,
         english_name,
@@ -109,11 +110,13 @@ def insertData(id, data):
         %s,
         %s,
         %s,
+        %s,
         %s);
         """
         try:
             # 执行SQL语句
-            cursor.execute(sql, [data["img_url"],
+            cursor.execute(sql, [id,
+                                 data["img_url"],
                                  data["common_name"],
                                  data["english_name"],
                                  data["cas"],
@@ -276,53 +279,63 @@ def creatData(driver, urlDateList):
                 driver.set_window_size(800, 800)
                 driver.get(urlDate[1])
                 time.sleep(1)
-                tbodyTr = driver.find_element_by_id("baseTbl").find_element_by_tag_name(
-                    "tbody").find_elements_by_tag_name("tr")
+                try:
+                    tbodyTr = driver.find_element_by_id("baseTbl").find_element_by_tag_name(
+                        "tbody").find_elements_by_tag_name("tr")
+                except:
+                    alt = driver.find_element_by_class_name("thumbnail").find_element_by_tag_name("img").get_attribute(
+                        "alt")
+                    if alt == '404 error':
+                        break
                 # 获取图片url
                 img_url = driver.find_element_by_id("structdiv").find_element_by_tag_name("img").get_attribute("src")
                 data["img_url"] = img_url
+                print(img_url)
                 # 常用名
-                common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].find_element_by_tag_name("a").text
+                try:
+                    common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].find_element_by_tag_name("a").text
+                except:
+                    common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].text
                 data["common_name"] = common_name
+                print(common_name)
                 # 英文名
                 english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
                 data["english_name"] = english_name
+                print(english_name)
                 # cas
                 cas = tbodyTr[1].find_elements_by_tag_name("td")[0].find_element_by_tag_name("a").text
                 data["cas"] = cas
+                print(cas)
                 # 分子量
                 molecular_weight = tbodyTr[1].find_elements_by_tag_name("td")[1].text
                 data["molecular_weight"] = molecular_weight
+                print(molecular_weight)
                 # 密度
                 density = tbodyTr[2].find_elements_by_tag_name("td")[0].text
                 data["density"] = density
+                print(density)
                 # 沸点
                 boiling_point = tbodyTr[2].find_elements_by_tag_name("td")[1].text
                 data["boiling_point"] = boiling_point
+                print(boiling_point)
                 # 分子式
                 molecular_formula = tbodyTr[3].find_elements_by_tag_name("td")[0].text
                 data["molecular_formula"] = molecular_formula
+                print(molecular_formula)
                 # 熔点
                 melting_point = tbodyTr[3].find_elements_by_tag_name("td")[1].text
                 data["melting_point"] = melting_point
+                print(melting_point)
                 # msds
                 msds = tbodyTr[4].find_elements_by_tag_name("td")[0].text
                 data["msds"] = msds
+                print(msds)
                 # 闪点
                 flash_point = tbodyTr[4].find_elements_by_tag_name("td")[1].text
                 data["flash_point"] = flash_point
-                print(common_name)
-                print(english_name)
-                print(cas)
-                print(molecular_weight)
-                print(density)
-                print(boiling_point)
-                print(molecular_formula)
-                print(melting_point)
-                print(msds)
                 print(flash_point)
-                print(img_url)
                 insertData(urlDate[0], data)
+                rowCount += 1
                 break
             except:
                 errcout += 1
