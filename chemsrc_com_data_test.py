@@ -1,4 +1,5 @@
 import logging
+import random
 import time
 
 import pymysql as pymysql
@@ -28,6 +29,27 @@ headers = {
     'Sec-Fetch-User': '?1',
     'preProxy': '119.179.161.126:8060'
 }
+
+user_agent_list = [ \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1" \
+    "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", \
+    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1", \
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", \
+    "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", \
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", \
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", \
+    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+]
 
 
 # proxyPool = ['1.197.204.251:9999', '1.198.72.8:9999']
@@ -258,7 +280,7 @@ def creatUrlDate(driver):
 
 def creatData(driver, urlDateList):
     rowCount = 1
-    urlDateList = ["https://www.chemsrc.com/cas/103626-36-4_49.html"]
+    urlDateList = ["https://www.chemsrc.com/cas/68251-77-4_588199.html"]
     for urlDate in urlDateList:
         print("---------------------------" + str(rowCount) + "------------------------------------------------")
         errcout = 0
@@ -298,7 +320,10 @@ def creatData(driver, urlDateList):
                 data["common_name"] = common_name
                 print(common_name)
                 # 英文名
-                english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
+                try:
+                    english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
+                except:
+                    english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].text
                 data["english_name"] = english_name
                 print(english_name)
                 # cas
@@ -333,7 +358,7 @@ def creatData(driver, urlDateList):
                 flash_point = tbodyTr[4].find_elements_by_tag_name("td")[1].text
                 data["flash_point"] = flash_point
                 print(flash_point)
-                insertData(7, data)
+                insertData(102660, data)
                 rowCount += 1
                 break
             except:
@@ -348,6 +373,10 @@ def getDriver():
     dcap["phantomjs.page.settings.userAgent"] = (
         headers
     )
+    # 从USER_AGENTS列表中随机选一个浏览器头，伪装浏览器
+    dcap["phantomjs.page.settings.userAgent"] = (random.choice(user_agent_list))
+    # 不载入图片，爬页面速度会快很多
+    dcap["phantomjs.page.settings.loadImages"] = False
     headers["preProxy"] = get_proxy().get("proxy")
     proxy = Proxy(
         {
@@ -360,6 +389,13 @@ def getDriver():
     # 把代理ip加入到技能中
     proxy.add_to_capabilities(dcap)
     driver = webdriver.PhantomJS(executable_path='download/phantomjs.exe', desired_capabilities=dcap)
+    # 隐式等待5秒，可以自己调节
+    # driver.implicitly_wait(5)
+    # 设置10秒页面超时返回，类似于requests.get()的timeout选项，driver.get()没有timeout选项
+    # 以前遇到过driver.get(url)一直不返回，但也不报错的问题，这时程序会卡住，设置超时选项能解决这个问题。
+    driver.set_page_load_timeout(5)
+    # 设置10秒脚本超时时间
+    driver.set_script_timeout(5)
     return driver
 
 

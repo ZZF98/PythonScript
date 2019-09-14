@@ -14,6 +14,9 @@ host = 'https://www.chemsrc.com'
 urlList = []
 # url页面上的路径列表
 urlDateList = []
+# 代理列表
+proxyList = []
+retriesCount = 3
 logger = logging.getLogger(__name__)
 
 headers = {
@@ -224,7 +227,7 @@ def getAllUrlDate(driver):
         while True:
             try:
                 # 删除代理并重新获取
-                if errcout > 5:
+                if errcout >= retriesCount:
                     # driver.service.process.send_signal(signal.SIGTERM)  # kill the specific phantomjs child proc
                     driver.quit()
                     print("删除代理" + headers["preProxy"])
@@ -259,7 +262,7 @@ def creatUrlDate(driver):
     while True:
         try:
             # 删除代理并重新获取
-            if errcout > 5:
+            if errcout >= retriesCount:
                 # driver.service.process.send_signal(signal.SIGTERM)  # kill the specific phantomjs child proc
                 driver.quit()
                 print("删除代理" + headers["preProxy"])
@@ -289,7 +292,7 @@ def creatData(driver, urlDateList):
         while True:
             try:
                 # 删除代理并重新获取
-                if errcout > 5:
+                if errcout >= retriesCount:
                     driver.quit()
                     print("删除代理" + headers["preProxy"])
                     delete_proxy(headers["preProxy"])
@@ -320,7 +323,10 @@ def creatData(driver, urlDateList):
                 data["common_name"] = common_name
                 print(common_name)
                 # 英文名
-                english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
+                try:
+                    english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
+                except:
+                    english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].text
                 data["english_name"] = english_name
                 print(english_name)
                 # cas
@@ -356,6 +362,12 @@ def creatData(driver, urlDateList):
                 data["flash_point"] = flash_point
                 print(flash_point)
                 insertData(urlDate[0], data)
+                if headers["preProxy"] not in proxyList:
+                    proxyList.append(headers["preProxy"])
+                    f1 = open('ip.txt', 'a')
+                    for ip in proxyList:
+                        f1.write(ip + "\n")
+                    f1.close()
                 break
             except:
                 errcout += 1
@@ -386,18 +398,18 @@ def getDriver():
     proxy.add_to_capabilities(dcap)
     driver = webdriver.PhantomJS(executable_path='download/phantomjs.exe', desired_capabilities=dcap)
     # 隐式等待5秒，可以自己调节
-    driver.implicitly_wait(5)
+    # driver.implicitly_wait(5)
     # 设置10秒页面超时返回，类似于requests.get()的timeout选项，driver.get()没有timeout选项
     # 以前遇到过driver.get(url)一直不返回，但也不报错的问题，这时程序会卡住，设置超时选项能解决这个问题。
-    driver.set_page_load_timeout(10)
+    driver.set_page_load_timeout(5)
     # 设置10秒脚本超时时间
-    driver.set_script_timeout(10)
+    driver.set_script_timeout(5)
     return driver
 
 
 def main():
     driver = getDriver()
-    # # 获取所有url
+    # # 1获取所有url
     # creatUrlDate(driver)
     # # 获取所有url下的url详情列表
     # getAllUrlDate(driver)
@@ -409,7 +421,7 @@ def main():
     #         break
     #     for urlDate in urlDateList:
     #         insertUrl(urlDate)
-    # 获取详细数据
+    # # 2获取详细数据
     page = 1
     while True:
         urlDateList = getUrl(page)
