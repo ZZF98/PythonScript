@@ -199,7 +199,7 @@ def getUrl(page):
         cursor = conn.cursor()
         # 修改数据的SQL语句
         sql = """
-          SELECT id,url FROM chemsrc_url LIMIT %s,100
+          SELECT id,url FROM chemsrc_url WHERE `status`='0' LIMIT %s,100
           """
         try:
             # 执行SQL语句
@@ -282,9 +282,8 @@ def creatUrlDate(driver):
 
 
 def creatData(driver, urlDateList):
-    rowCount = 1
     for urlDate in urlDateList:
-        print("---------------------------" + str(rowCount) + "------------------------------------------------")
+        print("---------------------------" + str(urlDate[0]) + "------------------------------------------------")
         errcout = 0
         data = {}
         while True:
@@ -357,7 +356,6 @@ def creatData(driver, urlDateList):
                 data["flash_point"] = flash_point
                 print(flash_point)
                 insertData(urlDate[0], data)
-                rowCount += 1
                 break
             except:
                 errcout += 1
