@@ -425,11 +425,12 @@ def main():
     #     for urlDate in urlDateList:
     #         insertUrl(urlDate)
     # # 2获取详细数据
-    page = 1
+    page = input("input:")
+    # page = 1
     while True:
-        urlDateList = getUrl(page)
+        urlDateList = getUrl(int(page))
         if urlDateList:
-            page += 1
+            # page += 1
             print(urlDateList)
             creatData(driver, urlDateList)
         else:
