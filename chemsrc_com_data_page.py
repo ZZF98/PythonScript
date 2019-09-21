@@ -276,8 +276,8 @@ def getUrl(page):
 
 
 # 获取所有url数据
-def getAllUrlDate(driver):
-    rowCount = 1
+def getAllUrlDate(driver, rowCounts):
+    rowCount = int(rowCounts)
     for urls in urlList:
         print("---------------------------" + str(rowCount) + "------------------------------------------------")
         errcout = 0
@@ -341,9 +341,12 @@ def getAllUrlDate(driver):
                     print(molecular_formula)
                     data["row_count"] = rowCount
                     insertDetailData(data)
-                    # if url not in urlDateList:
-                    #     urlDateList.append(url)
-                    #     insertUrl(url)
+                    if headers["preProxy"] not in proxyList:
+                        proxyList.append(headers["preProxy"])
+                        f1 = open('ip.txt', 'a')
+                        for ip in proxyList:
+                            f1.write(ip + "\n")
+                        f1.close()
                 break
             except:
                 errcout += 1
@@ -361,99 +364,6 @@ def creatUrlDate(start, end):
     for i in range(start, end + 1):
         strUrl = url + str(i) + ".html"
         urlList.append(strUrl)
-
-
-def creatData(driver, urlDateList):
-    for urlDate in urlDateList:
-        print("---------------------------" + str(urlDate[0]) + "------------------------------------------------")
-        errcout = 0
-        data = {}
-        while True:
-            try:
-                # 删除代理并重新获取
-                if errcout >= retriesCount:
-                    driver.quit()
-                    try:
-                        print("删除代理" + headers["preProxy"])
-                        delete_proxy(headers["preProxy"])
-                    except:
-                        pass
-                    driver = getDriver()
-                    errcout = 0
-
-                # 反爬虫
-                driver.set_window_size(800, 800)
-                driver.get(urlDate[1])
-                time.sleep(1)
-                try:
-                    tbodyTr = driver.find_element_by_id("baseTbl").find_element_by_tag_name(
-                        "tbody").find_elements_by_tag_name("tr")
-                except:
-                    alt = driver.find_element_by_class_name("thumbnail").find_element_by_tag_name("img").get_attribute(
-                        "alt")
-                    if alt == '404 error':
-                        break
-                # 获取图片url
-                img_url = driver.find_element_by_id("structdiv").find_element_by_tag_name("img").get_attribute("src")
-                data["img_url"] = img_url
-                print(img_url)
-                # 常用名
-                try:
-                    common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].find_element_by_tag_name("a").text
-                except:
-                    common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].text
-                data["common_name"] = common_name
-                print(common_name)
-                # 英文名
-                try:
-                    english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
-                except:
-                    english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].text
-                data["english_name"] = english_name
-                print(english_name)
-                # cas
-                cas = tbodyTr[1].find_elements_by_tag_name("td")[0].find_element_by_tag_name("a").text
-                data["cas"] = cas
-                print(cas)
-                # 分子量
-                molecular_weight = tbodyTr[1].find_elements_by_tag_name("td")[1].text
-                data["molecular_weight"] = molecular_weight
-                print(molecular_weight)
-                # 密度
-                density = tbodyTr[2].find_elements_by_tag_name("td")[0].text
-                data["density"] = density
-                print(density)
-                # 沸点
-                boiling_point = tbodyTr[2].find_elements_by_tag_name("td")[1].text
-                data["boiling_point"] = boiling_point
-                print(boiling_point)
-                # 分子式
-                molecular_formula = tbodyTr[3].find_elements_by_tag_name("td")[0].text
-                data["molecular_formula"] = molecular_formula
-                print(molecular_formula)
-                # 熔点
-                melting_point = tbodyTr[3].find_elements_by_tag_name("td")[1].text
-                data["melting_point"] = melting_point
-                print(melting_point)
-                # msds
-                msds = tbodyTr[4].find_elements_by_tag_name("td")[0].text
-                data["msds"] = msds
-                print(msds)
-                # 闪点
-                flash_point = tbodyTr[4].find_elements_by_tag_name("td")[1].text
-                data["flash_point"] = flash_point
-                print(flash_point)
-                insertData(urlDate[0], data)
-                if headers["preProxy"] not in proxyList:
-                    proxyList.append(headers["preProxy"])
-                    f1 = open('ip.txt', 'a')
-                    for ip in proxyList:
-                        f1.write(ip + "\n")
-                    f1.close()
-                break
-            except:
-                errcout += 1
-                print("url:" + urlDate[1] + "  错误次数:" + str(errcout))
 
 
 # 获取driver对象
@@ -527,9 +437,9 @@ def getDriver_proxy():
 def main():
     driver = getDriver_proxy()
     # 1获取所有url
-    creatUrlDate(1, 4411)
+    creatUrlDate(22, 4411)
     # 获取所有url下的url详情列表
-    getAllUrlDate(driver)
+    getAllUrlDate(driver, 22)
     # 判断是否为空，
     # while True:
     #     if urlDateList:
@@ -553,3 +463,95 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# def creatData(driver, urlDateList):
+#     for urlDate in urlDateList:
+#         print("---------------------------" + str(urlDate[0]) + "------------------------------------------------")
+#         errcout = 0
+#         data = {}
+#         while True:
+#             try:
+#                 # 删除代理并重新获取
+#                 if errcout >= retriesCount:
+#                     driver.quit()
+#                     try:
+#                         print("删除代理" + headers["preProxy"])
+#                         delete_proxy(headers["preProxy"])
+#                     except:
+#                         pass
+#                     driver = getDriver()
+#                     errcout = 0
+#
+#                 # 反爬虫
+#                 driver.set_window_size(800, 800)
+#                 driver.get(urlDate[1])
+#                 time.sleep(1)
+#                 try:
+#                     tbodyTr = driver.find_element_by_id("baseTbl").find_element_by_tag_name(
+#                         "tbody").find_elements_by_tag_name("tr")
+#                 except:
+#                     alt = driver.find_element_by_class_name("thumbnail").find_element_by_tag_name("img").get_attribute(
+#                         "alt")
+#                     if alt == '404 error':
+#                         break
+#                 # 获取图片url
+#                 img_url = driver.find_element_by_id("structdiv").find_element_by_tag_name("img").get_attribute("src")
+#                 data["img_url"] = img_url
+#                 print(img_url)
+#                 # 常用名
+#                 try:
+#                     common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].find_element_by_tag_name("a").text
+#                 except:
+#                     common_name = tbodyTr[0].find_elements_by_tag_name("td")[1].text
+#                 data["common_name"] = common_name
+#                 print(common_name)
+#                 # 英文名
+#                 try:
+#                     english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].find_element_by_tag_name("a").text
+#                 except:
+#                     english_name = tbodyTr[0].find_elements_by_tag_name("td")[2].text
+#                 data["english_name"] = english_name
+#                 print(english_name)
+#                 # cas
+#                 cas = tbodyTr[1].find_elements_by_tag_name("td")[0].find_element_by_tag_name("a").text
+#                 data["cas"] = cas
+#                 print(cas)
+#                 # 分子量
+#                 molecular_weight = tbodyTr[1].find_elements_by_tag_name("td")[1].text
+#                 data["molecular_weight"] = molecular_weight
+#                 print(molecular_weight)
+#                 # 密度
+#                 density = tbodyTr[2].find_elements_by_tag_name("td")[0].text
+#                 data["density"] = density
+#                 print(density)
+#                 # 沸点
+#                 boiling_point = tbodyTr[2].find_elements_by_tag_name("td")[1].text
+#                 data["boiling_point"] = boiling_point
+#                 print(boiling_point)
+#                 # 分子式
+#                 molecular_formula = tbodyTr[3].find_elements_by_tag_name("td")[0].text
+#                 data["molecular_formula"] = molecular_formula
+#                 print(molecular_formula)
+#                 # 熔点
+#                 melting_point = tbodyTr[3].find_elements_by_tag_name("td")[1].text
+#                 data["melting_point"] = melting_point
+#                 print(melting_point)
+#                 # msds
+#                 msds = tbodyTr[4].find_elements_by_tag_name("td")[0].text
+#                 data["msds"] = msds
+#                 print(msds)
+#                 # 闪点
+#                 flash_point = tbodyTr[4].find_elements_by_tag_name("td")[1].text
+#                 data["flash_point"] = flash_point
+#                 print(flash_point)
+#                 insertData(urlDate[0], data)
+#                 if headers["preProxy"] not in proxyList:
+#                     proxyList.append(headers["preProxy"])
+#                     f1 = open('ip.txt', 'a')
+#                     for ip in proxyList:
+#                         f1.write(ip + "\n")
+#                     f1.close()
+#                 break
+#             except:
+#                 errcout += 1
+#                 print("url:" + urlDate[1] + "  错误次数:" + str(errcout))
