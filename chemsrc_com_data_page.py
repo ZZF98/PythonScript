@@ -301,10 +301,11 @@ def getAllUrlDate(driver):
                 body = driver.find_element_by_tag_name("tbody").find_elements_by_class_name("rowDat")
                 for row in body:
                     # 详情地址
-                    url = row.find_elements_by_class_name("v-middle")[0].find_element_by_tag_name("a").get_attribute(
+                    urlDetail = row.find_elements_by_class_name("v-middle")[0].find_element_by_tag_name(
+                        "a").get_attribute(
                         "href")
-                    data["url"] = url
-                    print(url)
+                    data["url"] = urlDetail
+                    print(urlDetail)
                     # 中文名
                     common_name = row.find_elements_by_tag_name("td")[0].find_element_by_tag_name("a").text
                     data["common_name"] = common_name
