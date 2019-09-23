@@ -39,6 +39,12 @@ def file_list_creat():
         # 找一个小时前的
         if time_now < time_start_date:
             continue
+
+        # 过滤小于10M
+        data_size = getDocSize(dirPath + "//" + file)
+        if data_size < 10:
+            os.remove(dirPath + "//" + file)
+            continue
         data["device_serial"] = file.split(".")[0].split("-")[0]
         data["status"] = 0
         data["file_name"] = file
@@ -46,7 +52,16 @@ def file_list_creat():
         data["clinic_name"] = ""
         data["start_date"] = start_date
         print(data)
-        insert_video_data(data)
+        # insert_video_data(data)
+
+
+# 获取文件大小
+def getDocSize(path):
+    try:
+        size = os.path.getsize(path)
+        return size / 1024 / 1024
+    except Exception as err:
+        print(err)
 
 
 # 创建日期
