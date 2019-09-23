@@ -13,8 +13,9 @@ def my_job():
     file_list_creat()
     device_list = find_device_data()
     for device in device_list:
+        print("当前-----------" + device[0])
         yingshi_data_list = get_store_file_data(device[0])
-        if yingshi_data_list["data"] is not None:
+        if yingshi_data_list["code"] == 200 and yingshi_data_list["data"] is not None:
             for yingshi_data in yingshi_data_list["data"]:
                 device_serial = yingshi_data["deviceSerial"]
                 startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["startTime"]) / 1000))
@@ -25,7 +26,7 @@ def my_job():
                 print(startTime)
                 print(endTime)
         else:
-            print(device[0])
+            print("{}为空".format(device[0]))
 
 
 # 生成文件列表
@@ -55,7 +56,7 @@ def file_list_creat():
         data["clinic_name"] = ""
         data["start_date"] = start_date
         print(data)
-        # insert_video_data(data)
+        insert_video_data(data)
 
 
 # 获取文件大小
