@@ -14,15 +14,18 @@ def my_job():
     device_list = find_device_data()
     for device in device_list:
         yingshi_data_list = get_store_file_data(device[0])
-        for yingshi_data in yingshi_data_list["data"]:
-            device_serial = yingshi_data["deviceSerial"]
-            startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["startTime"]) / 1000))
-            endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["endTime"]) / 1000))
-            date = time.strftime('%Y%m%d', time.localtime(time.time()))
-            print(date)
-            print(device_serial)
-            print(startTime)
-            print(endTime)
+        if yingshi_data_list["data"] is not None:
+            for yingshi_data in yingshi_data_list["data"]:
+                device_serial = yingshi_data["deviceSerial"]
+                startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["startTime"]) / 1000))
+                endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["endTime"]) / 1000))
+                date = time.strftime('%Y%m%d', time.localtime(time.time()))
+                print(date)
+                print(device_serial)
+                print(startTime)
+                print(endTime)
+        else:
+            print(device[0])
 
 
 # 生成文件列表
