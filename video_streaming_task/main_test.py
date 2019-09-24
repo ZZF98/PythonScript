@@ -7,7 +7,6 @@ from video_streaming_task.upload import send_file
 from video_streaming_task.yingshi import *
 
 dirPath = 'C:\\Users\\EDZ\\Desktop\\video'
-dirCopyPath = 'C:\\Users\\EDZ\\Desktop\\video_copy'
 
 
 def my_job():
@@ -60,12 +59,18 @@ def my_job():
                     # 重命名文件
                     os.rename(dirPath + "\\" + file[1], dirPath + "\\" + new_name)
                     video_path = dirPath + "\\" + new_name
-                    send_file(device_serial, video_path, timestamp, str(round(clip.duration)),new_name)
+                    response = send_file(device_serial, video_path, timestamp, str(round(clip.duration)))
+                    if response:
+                        updata_video_data(new_name, yingshi_data[
+                            'fileId'], file[0])
+                        os.remove(dirPath + "\\" + new_name)
 
                 print(file_list)
                 print(video_node)
         else:
             print("{}为空".format(device[0]))
+    # 清空一小时数据
+    delete_file_by_time()
 
 
 # 生成文件列表
@@ -84,10 +89,10 @@ def file_list_creat():
             continue
 
         # 过滤小于10M
-        data_size = getDocSize(dirPath + "//" + file)
+        data_size = getDocSize(dirPath + "\\" + file)
         if data_size < 10:
-            print("删除文件：" + dirPath + "//" + file + "文件大小：" + str(data_size) + "M")
-            os.remove(dirPath + "//" + file)
+            print("删除文件：" + dirPath + "\\" + file + "文件大小：" + str(data_size) + "M")
+            os.remove(dirPath + "\\" + file)
             continue
         data["device_serial"] = file.split(".")[0].split("-")[0]
         data["status"] = 0
@@ -114,6 +119,22 @@ def creat_start_date(file):
     date = str(file_data_list[0]) + "-" + str(file_data_list[1]) + "-" + str(file_data_list[2]) + " " + str(
         file_data_list[3]) + ":" + str(file_data_list[4]) + ":" + str(file_data_list[5])
     return date
+
+
+def delete_file_by_time():
+    time_now = int(round(time.time() * 1000) - 3600 * 1000)
+    # 获取文件列表
+    dirList = os.listdir(dirPath)
+    for file in dirList:
+        start_date = creat_start_date(file)
+        time_start_date = int(round(time.mktime(
+            time.strptime(start_date,
+                          "%Y-%m-%d %H:%M:%S")) * 1000))
+        # 找一个小时前的
+        if time_now < time_start_date:
+            continue
+        print("删除文件：" + dirPath + "\\" + file)
+        os.remove(dirPath + "\\" + file)
 
 
 # sched = BlockingScheduler()
