@@ -149,4 +149,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-# new_name = os.rename("C:\\Users\\EDZ\\Desktop\\windows窗口播放\\windows-多路录像测试长跑版-64位-20190923\\a.txt", "C:\\Users\\EDZ\\Desktop\\windows窗口播放\\windows-多路录像测试长跑版-64位-20190923\\b.txt")
