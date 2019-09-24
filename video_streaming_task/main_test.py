@@ -1,10 +1,13 @@
 import os
 
-# https://blog.csdn.net/ithaibiantingsong/article/details/87775362
+from moviepy.video.io.VideoFileClip import VideoFileClip
+
 from video_streaming_task.mysql_sql import *
+from video_streaming_task.upload import send_file
 from video_streaming_task.yingshi import *
 
 dirPath = 'C:\\Users\\EDZ\\Desktop\\video'
+dirCopyPath = 'C:\\Users\\EDZ\\Desktop\\video_copy'
 
 
 def my_job():
@@ -23,16 +26,12 @@ def my_job():
                 endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["endTime"]) / 1000))
                 # date = time.strftime('%Y%m%d', time.localtime(time.time()))
                 date = 20190923
-                print(date)
-                print(device_serial)
-                print(startTime)
-                print(endTime)
                 data["date"] = date
                 data["device_serial"] = device_serial
                 data["startTime"] = startTime
                 data["endTime"] = endTime
+                print(data)
                 video_node = find_file_list_node(data)
-                print(video_node)
                 # 表示日期为凌晨11点到第二天
                 if len(video_node) != 2:
                     continue
@@ -45,7 +44,23 @@ def my_job():
                 # 根据两个端点获取文件列表
                 file_list = find_file_list(data)
                 for file in file_list:
-                    print("下载：{}".format(file))
+                    print("下载：{}".format(file[1]))
+
+                    timestamp = int(round(time.mktime(
+                        time.strptime(creat_start_date(file[1]),
+                                      "%Y-%m-%d %H:%M:%S")) * 1000))
+                    """
+                    64408405314_1569246587000_22_C97043289.MP4
+                    """
+                    clip = VideoFileClip(dirPath + "\\" + file[1])
+                    new_name = yingshi_data[
+                                   'fileId'] + "_" + str(timestamp) + "_" + str(round(clip.duration)) + "_" + str(
+                        device_serial) + ".MP4"
+                    clip.close()
+                    # 重命名文件
+                    os.rename(dirPath + "\\" + file[1], dirPath + "\\" + new_name)
+                    video_path = dirPath + "\\" + new_name
+                    send_file(device_serial, video_path, timestamp, str(round(clip.duration)),new_name)
 
                 print(file_list)
                 print(video_node)
@@ -113,3 +128,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+# new_name = os.rename("C:\\Users\\EDZ\\Desktop\\windows窗口播放\\windows-多路录像测试长跑版-64位-20190923\\a.txt", "C:\\Users\\EDZ\\Desktop\\windows窗口播放\\windows-多路录像测试长跑版-64位-20190923\\b.txt")
