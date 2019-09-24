@@ -8,23 +8,47 @@ dirPath = 'C:\\Users\\EDZ\\Desktop\\video'
 
 
 def my_job():
-    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+    print("当前时间:{}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
     # 生成文件列表
     file_list_creat()
     device_list = find_device_data()
     for device in device_list:
-        print("当前-----------" + device[0])
+        print("当前设备：{}".format(device[0]))
         yingshi_data_list = get_store_file_data(device[0])
-        if yingshi_data_list["code"] == 200 and yingshi_data_list["data"] is not None:
+        if yingshi_data_list["code"] == '200' and yingshi_data_list["data"] is not None:
             for yingshi_data in yingshi_data_list["data"]:
+                data = {}
                 device_serial = yingshi_data["deviceSerial"]
                 startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["startTime"]) / 1000))
                 endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["endTime"]) / 1000))
-                date = time.strftime('%Y%m%d', time.localtime(time.time()))
+                # date = time.strftime('%Y%m%d', time.localtime(time.time()))
+                date = 20190923
                 print(date)
                 print(device_serial)
                 print(startTime)
                 print(endTime)
+                data["date"] = date
+                data["device_serial"] = device_serial
+                data["startTime"] = startTime
+                data["endTime"] = endTime
+                video_node = find_file_list_node(data)
+                print(video_node)
+                # 表示日期为凌晨11点到第二天
+                if len(video_node) != 2:
+                    continue
+                data = {}
+                start_node = video_node[0]
+                end_node = video_node[1]
+                data["startTime"] = start_node[1]
+                data["endTime"] = end_node[1]
+                data["device_serial"] = device_serial
+                # 根据两个端点获取文件列表
+                file_list = find_file_list(data)
+                for file in file_list:
+                    print("下载：{}".format(file))
+
+                print(file_list)
+                print(video_node)
         else:
             print("{}为空".format(device[0]))
 
@@ -47,6 +71,7 @@ def file_list_creat():
         # 过滤小于10M
         data_size = getDocSize(dirPath + "//" + file)
         if data_size < 10:
+            print("删除文件：" + dirPath + "//" + file + "文件大小：" + str(data_size) + "M")
             os.remove(dirPath + "//" + file)
             continue
         data["device_serial"] = file.split(".")[0].split("-")[0]
@@ -73,7 +98,6 @@ def creat_start_date(file):
     file_data_list = file.split(".")[0].split("-")[1:7]
     date = str(file_data_list[0]) + "-" + str(file_data_list[1]) + "-" + str(file_data_list[2]) + " " + str(
         file_data_list[3]) + ":" + str(file_data_list[4]) + ":" + str(file_data_list[5])
-    print(date)
     return date
 
 
