@@ -11,14 +11,17 @@ dirPath = 'C:\\Users\\EDZ\\Desktop\\video'
 
 def my_job():
     print("当前时间:{}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+    # 获取一小时前的时间戳
+    time_now = int(round(time.time() * 1000) - 3600 * 1000)
     # 生成文件列表
-    file_list_creat()
+    file_list_creat(time_now)
     device_list = find_device_data()
     for device in device_list:
         print("当前设备：{}".format(device[0]))
-        yingshi_data_list = get_store_file_data(device[0])
+        yingshi_data_list = get_store_file_data(device[0], time_now)
         if yingshi_data_list["code"] == '200' and yingshi_data_list["data"] is not None:
-            for yingshi_data in yingshi_data_list["data"]:
+            node_list = find_node_by_time(yingshi_data_list["data"])
+            for yingshi_data in node_list:  # yingshi_data_list["data"]:
                 data = {}
                 device_serial = yingshi_data["deviceSerial"]
                 startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["startTime"]) / 1000))
@@ -70,12 +73,11 @@ def my_job():
         else:
             print("{}为空".format(device[0]))
     # 清空一小时数据
-    delete_file_by_time()
+    delete_file_by_time(time_now)
 
 
 # 生成文件列表
-def file_list_creat():
-    time_now = int(round(time.time() * 1000) - 3600 * 1000)
+def file_list_creat(time_now):
     # 获取文件列表
     dirList = os.listdir(dirPath)
     for file in dirList:
@@ -121,8 +123,8 @@ def creat_start_date(file):
     return date
 
 
-def delete_file_by_time():
-    time_now = int(round(time.time() * 1000) - 3600 * 1000)
+# 删除文件
+def delete_file_by_time(time_now):
     # 获取文件列表
     dirList = os.listdir(dirPath)
     for file in dirList:
@@ -135,6 +137,45 @@ def delete_file_by_time():
             continue
         print("删除文件：" + dirPath + "\\" + file)
         os.remove(dirPath + "\\" + file)
+
+
+# 根据监测点获取node列表
+def find_node_by_time(data):
+    print(len(data))
+    node_list = []
+    # 记录该数据填充情况
+    matrix = [0 for i in range(len(data))]
+    for i in range(len(data)):
+        if matrix[i] == 0:
+            pre_endTime = data[i]["endTime"]
+            # 初始化节点数据
+            node = copy_yingshi_node_data(data[i])
+            # 标识已经使用
+            matrix[i] = 1
+            for n in range(i, len(data)):
+                if matrix[n] == 0:
+                    # 判断上个节点的结束时间后半个小时是否大于下个节点的时间
+                    if int(data[i]["endTime"]) + 3600 * 1000 / 2 > int(data[n]["startTime"]):
+                        # 记录最后更新的时间
+                        pre_endTime = data[n]["endTime"]
+                        print(pre_endTime)
+                    else:
+                        # 记录节点最后的一次值将本次最后的时间修改
+                        node["endTime"] = pre_endTime
+                        node_list.append(node)
+                        break
+    print(node_list)
+    return node_list
+
+
+# copy萤石数据
+def copy_yingshi_node_data(data):
+    node = {}
+    node["startTime"] = data["startTime"]
+    node["endTime"] = data["endTime"]
+    node["deviceSerial"] = data["deviceSerial"]
+    node["fileId"] = data["fileId"]
+    return node
 
 
 # sched = BlockingScheduler()
