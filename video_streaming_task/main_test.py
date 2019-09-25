@@ -18,6 +18,8 @@ def my_job():
     # 生成文件列表
     file_list_creat(time_now)
     device_list = find_device_data()
+    # device_list = [['C90843906'], ['C90840816'], ['C90843821'], ['C90842521'], ['C90843608']]
+    # device_list = [['C90843608']]
     for device in device_list:
         print("当前设备：{}".format(device[0]))
         yingshi_data_list = get_store_file_data(device[0], time_now)
@@ -56,6 +58,10 @@ def my_job():
                     """
                     64408405314_1569246587000_22_C97043289.MP4
                     """
+                    if not os.path.exists(dirPath + "\\" + file[1]):
+                        print("文件不存在:" + dirPath + "\\" + file[1])
+                        delete_video_data(dirPath + "\\" + file[1])
+                        continue
                     clip = VideoFileClip(dirPath + "\\" + file[1])
                     new_name = yingshi_data[
                                    'fileId'] + "_" + str(timestamp) + "_" + str(round(clip.duration)) + "_" + str(
@@ -81,8 +87,9 @@ def my_job():
                 print(video_node)
         else:
             print("{}为空".format(device[0]))
-    # 清空一小时数据
-    delete_file_by_time(time_now)
+    print("结束时间:{}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+    # 清空三小时前小时数据
+    delete_file_by_time(3)
 
 
 # 生成文件列表
@@ -104,6 +111,16 @@ def file_list_creat(time_now):
         if data_size < 10:
             print("删除文件：" + dirPath + "\\" + file + "文件大小：" + str(data_size) + "M")
             os.remove(dirPath + "\\" + file)
+            continue
+        if len(file.split("-")) > 7:
+            new_name = "-".join(file.split("-")[:7]) + "." + file.split(".")[1]
+            os.rename(dirPath + "\\" + file, dirPath + "\\" + new_name)
+            print("文件重命名:{}".format(new_name))
+            file = new_name
+
+        # 判断是否存在
+        data_file = find_file(file)
+        if len(data_file) > 0:
             continue
         data["device_serial"] = file.split(".")[0].split("-")[0]
         data["status"] = 0
@@ -133,7 +150,8 @@ def creat_start_date(file):
 
 
 # 删除文件
-def delete_file_by_time(time_now):
+def delete_file_by_time(number):
+    time_now = int(round(time.time() * 1000) - 3600 * 1000 * number)
     # 获取文件列表
     dirList = os.listdir(dirPath)
     for file in dirList:
@@ -181,6 +199,14 @@ def find_node_by_time(data):
                         pre_endTime = data[n]["endTime"]
                         # 标识已经使用
                         matrix[n] = 1
+                        if matrix[-1] == 1:
+                            node["endTime"] = pre_endTime
+                            startTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                      time.localtime(int(node["startTime"]) / 1000))
+                            endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(node["endTime"]) / 1000))
+                            print("开始时间：{}".format(startTime))
+                            print("结束时间：{}".format(endTime))
+                            node_list.append(node)
                     else:
                         # 记录节点最后的一次值将本次最后的时间修改
                         node["endTime"] = pre_endTime
@@ -234,7 +260,6 @@ def copy_yingshi_node_data(data):
 # sched.add_job(my_job, 'cron', day='*', hour='0-23', minute=59, second=59)
 #
 # sched.start()
-
 
 def main():
     my_job()
