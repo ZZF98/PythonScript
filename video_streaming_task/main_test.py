@@ -62,11 +62,18 @@ def my_job():
                     # 重命名文件
                     os.rename(dirPath + "\\" + file[1], dirPath + "\\" + new_name)
                     video_path = dirPath + "\\" + new_name
-                    response = send_file(device_serial, video_path, timestamp, str(round(clip.duration)))
-                    if response:
-                        updata_video_data(new_name, yingshi_data[
-                            'fileId'], file[0])
-                        os.remove(dirPath + "\\" + new_name)
+                    # 保证上传
+                    while True:
+                        try:
+                            response = send_file(device_serial, video_path, timestamp, str(round(clip.duration)))
+                            if response:
+                                updata_video_data(new_name, yingshi_data[
+                                    'fileId'], file[0])
+                                os.remove(dirPath + "\\" + new_name)
+                                break
+                        except Exception as e:
+                            print(e)
+                            pass
 
                 print(file_list)
                 print(video_node)
@@ -146,22 +153,64 @@ def find_node_by_time(data):
     # 记录该数据填充情况
     matrix = [0 for i in range(len(data))]
     for i in range(len(data)):
+        # 如果最后一个节点已经标识过说明可以直接退出
+        if matrix[-1] == 1:
+            break
         if matrix[i] == 0:
             pre_endTime = data[i]["endTime"]
             # 初始化节点数据
             node = copy_yingshi_node_data(data[i])
+            # 如果是最后一个节点，直接添加
+            if i == len(data) - 1:
+                node_list.append(node)
+                break
             # 标识已经使用
             matrix[i] = 1
-            for n in range(i, len(data)):
+            for n in range(i + 1, len(data)):
                 if matrix[n] == 0:
+                    # startTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                    #                           time.localtime(int(pre_endTime + 3600 * 1000 / 2) / 1000))
+                    # endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(data[n]["startTime"]) / 1000))
+                    # print(startTime)
+                    # print(endTime)
                     # 判断上个节点的结束时间后半个小时是否大于下个节点的时间
-                    if int(data[i]["endTime"]) + 3600 * 1000 / 2 > int(data[n]["startTime"]):
+                    if int(pre_endTime) + 3600 * 1000 / 2 > int(data[n]["startTime"]):
                         # 记录最后更新的时间
                         pre_endTime = data[n]["endTime"]
-                        print(pre_endTime)
+                        # 标识已经使用
+                        matrix[n] = 1
                     else:
                         # 记录节点最后的一次值将本次最后的时间修改
                         node["endTime"] = pre_endTime
+                        # 大于1小时
+                        # if int(node["startTime"]) + 3600 * 1000 < int(node["endTime"]):
+                        #     print("--------------------------------------------node start:")
+                        #     for x in range(i, n):
+                        #         startTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                        #                                   time.localtime(int(data[x]["startTime"]) / 1000))
+                        #         endTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                        #                                 time.localtime(int(data[x]["endTime"]) / 1000))
+                        #         print(startTime)
+                        #         print(endTime)
+                        #     print("-------------------------------------------node end:")
+
+                        # 小于一分钟
+                        if int((int(node["endTime"]) - int(node["startTime"])) / 1000) < 60:
+                            print("############################################node start:")
+                            for x in range(i, n):
+                                startTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                          time.localtime(int(data[x]["startTime"]) / 1000))
+                                endTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                        time.localtime(int(data[x]["endTime"]) / 1000))
+                                print(startTime)
+                                print(endTime)
+                            print("############################################node end:")
+                        startTime = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                  time.localtime(int(node["startTime"]) / 1000))
+                        endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(node["endTime"]) / 1000))
+                        print("开始时间：{}".format(startTime))
+                        print("结束时间：{}".format(endTime))
+
                         node_list.append(node)
                         break
     print(node_list)
