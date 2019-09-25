@@ -255,15 +255,15 @@ def copy_yingshi_node_data(data):
     return node
 
 
-# sched = BlockingScheduler()
+sched = BlockingScheduler()
+
+sched.add_job(my_job, 'cron', day='*', hour='0-23', minute=59, second=59)
+
+sched.start()
+
+# def main():
+#     my_job()
 #
-# sched.add_job(my_job, 'cron', day='*', hour='0-23', minute=59, second=59)
 #
-# sched.start()
-
-def main():
-    my_job()
-
-
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
