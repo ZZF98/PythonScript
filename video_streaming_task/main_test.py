@@ -1,12 +1,14 @@
 import os
 
+from apscheduler.schedulers.blocking import BlockingScheduler
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from video_streaming_task.mysql_sql import *
 from video_streaming_task.upload import send_file
 from video_streaming_task.yingshi import *
 
-dirPath = 'C:\\Users\\EDZ\\Desktop\\video'
+# dirPath = 'C:\\Users\\EDZ\\Desktop\\video'
+dirPath = 'D:\\video'
 
 
 def my_job():
@@ -26,8 +28,8 @@ def my_job():
                 device_serial = yingshi_data["deviceSerial"]
                 startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["startTime"]) / 1000))
                 endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(yingshi_data["endTime"]) / 1000))
-                # date = time.strftime('%Y%m%d', time.localtime(time.time()))
-                date = 20190923
+                date = time.strftime('%Y%m%d', time.localtime(time.time()))
+                # date = 20190923
                 data["date"] = date
                 data["device_serial"] = device_serial
                 data["startTime"] = startTime
@@ -122,7 +124,7 @@ def getDocSize(path):
         print(err)
 
 
-# 创建日期
+# 获取文件日期
 def creat_start_date(file):
     file_data_list = file.split(".")[0].split("-")[1:7]
     date = str(file_data_list[0]) + "-" + str(file_data_list[1]) + "-" + str(file_data_list[2]) + " " + str(
@@ -229,9 +231,10 @@ def copy_yingshi_node_data(data):
 
 # sched = BlockingScheduler()
 #
-# sched.add_job(my_job, 'cron', day='*', hour='2,5,8,11,14,17,20,23', minute=59)
+# sched.add_job(my_job, 'cron', day='*', hour='0-23', minute=59, second=59)
 #
 # sched.start()
+
 
 def main():
     my_job()
