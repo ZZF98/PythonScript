@@ -241,7 +241,19 @@ def getCopy():
     return str(copytxet)
 
 
-if __name__ == "__main__":
+# 截图
+def ctrl_alt_a():
+    win32api.keybd_event(VK_CODE["ctrl"], 0, 0, 0)
+    time.sleep(0.01)
+    win32api.keybd_event(VK_CODE["alt"], 0, 0, 0)
+    time.sleep(0.01)
+    win32api.keybd_event(VK_CODE["a"], 0, 0, 0)
+    win32api.keybd_event(VK_CODE["a"], 0, win32con.KEYEVENTF_KEYUP, 0)
+    win32api.keybd_event(VK_CODE["alt"], 0, win32con.KEYEVENTF_KEYUP, 0)
+    win32api.keybd_event(VK_CODE["ctrl"], 0, win32con.KEYEVENTF_KEYUP, 0)
+
+
+# if __name__ == "__main__":
     # # 全选
     # mouse_click(777, 286)
     # mouse_click(862, 287)
@@ -253,16 +265,19 @@ if __name__ == "__main__":
     # str = 'hello'
     # key_input(str)
     # mouse_click(707, 131)
-    time.sleep(1)
-    # 双击rmqp
-    mouse_dclick(1027, 343)
-    time.sleep(1)
-    # 双击url
-    mouse_dclick(999, 473)
-    time.sleep(0.5)
-    # copy
-    key_copy()
-    # 获取复制版内容
-    print(getCopy())
-    # 退出
-    mouse_click(1276, 343)
+    # time.sleep(1)
+    # # 双击rmqp
+    # mouse_dclick(1027, 343)
+    # time.sleep(1)
+    # # 双击url
+    # mouse_dclick(999, 473)
+    # time.sleep(0.5)
+    # # copy
+    # key_copy()
+    # # 获取复制版内容
+    # print(getCopy())
+    # # 退出
+    # mouse_click(1276, 343)
+    # time.sleep(1)
+    # ctrl_alt_a()
+    # mouse_dclick(999, 473)
