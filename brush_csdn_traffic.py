@@ -33,7 +33,8 @@ user_agent_list = [ \
     "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3", \
     "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3", \
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", \
-    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24", \
+    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"
 ]
 # https://www.kuaidaili.com/free/
 request.ProxyHandler({"http": "114.234.83.42:9000", "http": "114.235.23.100:9000"})
@@ -44,7 +45,14 @@ proxies = {
 # r=requests.get("http://youtube.com", proxies=proxies)
 
 headers = {
-    'User-Agent': ''
+    'User-Agent': '',
+    'Pragma': 'no-cache',
+    'Cache-Control': 'no-cache',
+    'Host': 'blog.csdn.net',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+    'Sec-Fetch-User': '?1',
+    'Cookie': 'uuid_tt_dd=10_21050979110-1561947641260-125423; UN=qq_37598011; __yadk_uid=8weVoUulkpybMVDR3Or7muTFgvIiieui; _ga=GA1.2.1400725604.1562050604; Hm_ct_6bcd52f51e9b3dce32bec4a3997715ac=6525*1*10_21050979110-1561947641260-125423!5744*1*qq_37598011!1788*1*PC_VC; smidV2=20190703184407d5503dd016f76b59ae2db3ccb323a4ee0075bbcaa2ae7b150; dc_session_id=10_1563416655008.833988; Hm_ct_e5ef47b9f471504959267fd614d579cd=5744*1*qq_37598011!6525*1*10_21050979110-1561947641260-125423; acw_tc=2760820615674888479196583ee79cbe9614046097b622ea9660bc8fb78c07; UserName=qq_37598011; UserInfo=2dbade0627c245fcb8e069e61914229a; UserToken=2dbade0627c245fcb8e069e61914229a; UserNick=%E8%9B%87%E7%9A%AE%E7%9A%AE%E8%9B%8B; AU=754; BT=1567580608191; p_uid=U000000; Hm_lvt_e5ef47b9f471504959267fd614d579cd=1567043028,1567043308,1567504544,1569036759; hasSub=true; aliyun_webUmidToken=T778F639477167CD7CB9BEE5C8C3C18B08B52DC11E8B242BF6F6F687788; acw_sc__v2=5d8d5fcd64dac2afd053e51c846b3b57951854d2; Hm_lvt_6bcd52f51e9b3dce32bec4a3997715ac=1569490177,1569490237,1569490331,1569546248; TINGYUN_DATA=%7B%22id%22%3A%22-sf2Cni530g%23HL5wvli0FZI%22%2C%22n%22%3A%22WebAction%2FCI%2FarticleList%252Flist%22%2C%22tid%22%3A%22f6d1c325e27d64%22%2C%22q%22%3A0%2C%22a%22%3A94%7D; dc_tos=pygugx; Hm_lpvt_6bcd52f51e9b3dce32bec4a3997715ac=1569547330'
 }
 
 lists = []
@@ -180,8 +188,8 @@ def main2(url, lists, sum):
 
 if __name__ == '__main__':
     # 方式一：
-    main(url, lists, sum)
-    # main2(url, lists, sum)
+    # main(url, lists, sum)
+    main2(url, lists, sum)
     # 下载百度
     # request.urlretrieve("http://www.baidu.com", "index.html")
     # parameter = {"wd": "猪"}
