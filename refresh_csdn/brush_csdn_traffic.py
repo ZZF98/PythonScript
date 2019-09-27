@@ -136,8 +136,8 @@ def getChrome():
         }
     }
     chromeOptions.add_experimental_option('prefs', prefs)
+    chromeOptions.add_argument("--proxy-server={}".format(proxy))
     driver = webdriver.Chrome(executable_path='chromedriver.exe', chrome_options=chromeOptions)
-    # chromeOptions.add_argument("--proxy-server={}".format(proxy))
     driver.implicitly_wait(60)
     driver.set_page_load_timeout(5)
     # 设置10秒脚本超时时间

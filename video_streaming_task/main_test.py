@@ -120,7 +120,29 @@ def file_list_creat(time_now):
             continue
         if len(file.split("-")) > 7:
             new_name = "-".join(file.split("-")[:7]) + "." + file.split(".")[1]
-            os.rename(dirPath + "\\" + file, dirPath + "\\" + new_name)
+            try:
+                os.rename(dirPath + "\\" + file, dirPath + "\\" + new_name)
+            except Exception as e:
+                # 判断大小
+                try:
+                    cli = VideoFileClip(dirPath + "\\" + file)
+                    v1 = cli.duration
+                    cli.close()
+                except:
+                    os.remove(dirPath + "\\" + file)
+                    v1 = 0
+                try:
+                    cli = VideoFileClip(dirPath + "\\" + new_name)
+                    v2 = cli.duration
+                    cli.close()
+                except:
+                    os.remove(dirPath + "\\" + new_name)
+                    v2 = 0
+                if v1 > v2:
+                    os.remove(dirPath + "\\" + new_name)
+                    os.rename(dirPath + "\\" + file, dirPath + "\\" + new_name)
+                else:
+                    os.remove(dirPath + "\\" + file)
             print("文件重命名:{}".format(new_name))
             file = new_name
 
@@ -269,7 +291,7 @@ sched.start()
 
 # def main():
 #     my_job()
-#
-#
-# if __name__ == '__main__':
-#     main()
+
+
+if __name__ == '__main__':
+    main()
