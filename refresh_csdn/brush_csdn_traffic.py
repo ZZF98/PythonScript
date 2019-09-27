@@ -153,6 +153,7 @@ def main(url, lists, sum):
             # http://npm.taobao.org/mirrors/chromedriver/
             # http://chromedriver.storage.googleapis.com/index.html
             # https://www.zdaye.com/FreeIPList.html
+            # https://selenium-python-zh.readthedocs.io/en/latest/api.html
             driver = getChrome()
             driver.get("http://httpbin.org/get")
             print(driver.page_source)
