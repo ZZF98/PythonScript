@@ -68,6 +68,7 @@ url = 'https://blog.csdn.net' + csdnUser
 
 # 游览数总数
 sum = 2000000
+proxy = ''
 
 
 # 获取代理
@@ -136,12 +137,12 @@ def getChrome():
         }
     }
     chromeOptions.add_experimental_option('prefs', prefs)
-    chromeOptions.add_argument("--proxy-server={}".format(proxy))
+    chromeOptions.add_argument("--proxy-server={}".format('27.152.91.37:9999'))
     driver = webdriver.Chrome(executable_path='chromedriver.exe', chrome_options=chromeOptions)
-    driver.implicitly_wait(60)
-    driver.set_page_load_timeout(5)
+    driver.implicitly_wait(5)
+    driver.set_page_load_timeout(3)
     # 设置10秒脚本超时时间
-    driver.set_script_timeout(5)
+    driver.set_script_timeout(3)
     return driver
 
 
@@ -151,9 +152,8 @@ def main(url, lists, sum):
             # chrome://version/
             # http://npm.taobao.org/mirrors/chromedriver/
             # http://chromedriver.storage.googleapis.com/index.html
-
+            # https://www.zdaye.com/FreeIPList.html
             driver = getChrome()
-            driver.implicitly_wait(60)
             driver.get("http://httpbin.org/get")
             print(driver.page_source)
             driver.get(url)
@@ -200,6 +200,7 @@ def main(url, lists, sum):
                     pass
         except Exception as e:
             print(e)
+            driver.quit()
             pass
 
 
