@@ -95,7 +95,7 @@ def my_job():
             print("{}为空".format(device[0]))
     print("结束时间:{}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
     # 清空三小时前小时数据
-    delete_file_by_time(6)
+    delete_file_by_time(8)
 
 
 # 生成文件列表
@@ -291,7 +291,7 @@ sched.start()
 
 # def main():
 #     my_job()
-
-
-if __name__ == '__main__':
-    main()
+#
+#
+# if __name__ == '__main__':
+#     main()
