@@ -128,8 +128,8 @@ def getTiltleNumber(url):
 
 def getChrome():
     chromeOptions = webdriver.ChromeOptions()
-    proxy = get_proxy()["proxy"]
-    print(proxy)
+    # proxy = get_proxy()["proxy"]
+    # print(proxy)
     # 禁止加载图片
     prefs = {
         'profile.default_content_setting_values': {
@@ -137,12 +137,13 @@ def getChrome():
         }
     }
     chromeOptions.add_experimental_option('prefs', prefs)
-    chromeOptions.add_argument("--proxy-server={}".format('27.152.91.37:9999'))
+    # chromeOptions.add_argument("--proxy-server={}".format('27.152.91.37:9999'))
     driver = webdriver.Chrome(executable_path='chromedriver.exe', chrome_options=chromeOptions)
     driver.implicitly_wait(5)
     driver.set_page_load_timeout(3)
     # 设置10秒脚本超时时间
     driver.set_script_timeout(3)
+    driver.minimize_window()
     return driver
 
 
@@ -161,7 +162,7 @@ def main(url, lists, sum):
 
             pageNumber = driver.find_elements_by_class_name("ui-pager")
             title = int(driver.find_element(By.CLASS_NAME, "grade-box,clearfix").find_elements(By.TAG_NAME, "dl")[
-                            -3].find_element(By.TAG_NAME, "dd").get_attribute("title"))
+                            1].find_element(By.TAG_NAME, "dd").get_attribute("title"))
             print(title)
 
             if pageNumber == []:
@@ -188,6 +189,7 @@ def main(url, lists, sum):
                     print(driver.find_element_by_class_name("title-article").text)
                     bsObj = driver.page_source
                     print(bsObj)
+                    errcout = 0
                     print("----------------------------------------------------------------------------")
                     if count % 100 == 0:
                         title = getTiltleNumber(url)
@@ -195,13 +197,13 @@ def main(url, lists, sum):
                     print(e)
                     count = count - 1
                     errcout = errcout + 1
-                    if errcout > 5:
+                    if errcout > 50:
                         driver.quit()
                         driver = getChrome()
                     pass
         except Exception as e:
             print(e)
-            driver.quit()
+            # driver.quit()
             pass
 
 
