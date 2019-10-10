@@ -148,6 +148,7 @@ def getChrome():
 
 
 def main(url, lists, sum):
+    count = 0
     while True:
         try:
             # chrome://version/
@@ -175,7 +176,6 @@ def main(url, lists, sum):
                 getAllLink(newUrl, lists)
 
             urlList = list(set(lists))
-            count = 0
             errcout = 0
             while title <= sum:
                 count += 1
@@ -188,7 +188,7 @@ def main(url, lists, sum):
                             count) + "------------------------------------------------")
                     print(driver.find_element_by_class_name("title-article").text)
                     bsObj = driver.page_source
-                    print(bsObj)
+                    # print(bsObj)
                     errcout = 0
                     print("----------------------------------------------------------------------------")
                     if count % 100 == 0:
