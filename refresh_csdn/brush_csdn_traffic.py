@@ -188,11 +188,11 @@ def main(url, lists, sum):
                         driver.find_element(By.CLASS_NAME, "grade-box,clearfix").find_elements(By.TAG_NAME, "dl")[
                             1].find_element(By.TAG_NAME, "dd").get_attribute("title"))
                     print(title)
-                    bsObj = driver.page_source
+                    # bsObj = driver.page_source
                     # print(bsObj)
                     errcout = 0
-                    if count % 100 == 0:
-                        title = getTiltleNumber(url)
+                    # if count % 100 == 0:
+                    #     title = getTiltleNumber(url)
                 except Exception as e:
                     print(e)
                     errcout = errcout + 1
