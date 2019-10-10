@@ -3,16 +3,13 @@ import datetime
 import logging
 import random
 import re
-import time
 from urllib import request
 from urllib.request import urlopen
 
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.proxy import ProxyType, Proxy
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +136,7 @@ def getChrome():
     chromeOptions.add_experimental_option('prefs', prefs)
     # chromeOptions.add_argument("--proxy-server={}".format('27.152.91.37:9999'))
     driver = webdriver.Chrome(executable_path='chromedriver.exe', chrome_options=chromeOptions)
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(3)
     driver.set_page_load_timeout(3)
     # 设置10秒脚本超时时间
     driver.set_script_timeout(3)
@@ -182,25 +179,28 @@ def main(url, lists, sum):
                 randomUrl = urlList[random.randint(0,
                                                    len(urlList) - 1)]
                 try:
-                    driver.get(randomUrl)
                     print(
                         "---------------------------" + str(
                             count) + "------------------------------------------------")
+                    driver.get(randomUrl)
                     print(driver.find_element_by_class_name("title-article").text)
+                    title = int(
+                        driver.find_element(By.CLASS_NAME, "grade-box,clearfix").find_elements(By.TAG_NAME, "dl")[
+                            1].find_element(By.TAG_NAME, "dd").get_attribute("title"))
+                    print(title)
                     bsObj = driver.page_source
                     # print(bsObj)
                     errcout = 0
-                    print("----------------------------------------------------------------------------")
                     if count % 100 == 0:
                         title = getTiltleNumber(url)
                 except Exception as e:
                     print(e)
-                    count = count - 1
                     errcout = errcout + 1
                     if errcout > 50:
                         driver.quit()
                         driver = getChrome()
                     pass
+                print("----------------------------------------------------------------------------")
         except Exception as e:
             print(e)
             # driver.quit()
