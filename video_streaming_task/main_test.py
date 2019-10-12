@@ -1,6 +1,6 @@
 import os
+import subprocess
 
-from apscheduler.schedulers.blocking import BlockingScheduler
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from video_streaming_task.mysql_sql import *
@@ -156,6 +156,15 @@ def file_list_creat(time_now):
         data["date"] = time.strftime('%Y%m%d', time.localtime(time.time()))
         data["clinic_name"] = ""
         data["start_date"] = start_date
+        file_mes = getLenTime(dirPath + "\\" + file)
+        end_timestamp = int(round(time.mktime(
+            time.strptime(start_date,
+                          "%Y-%m-%d %H:%M:%S")) * 1000))
+        end_timestamp = end_timestamp + float(file_mes["time"]) * 1000
+        end_timestamp = end_timestamp / 1000
+        end_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(end_timestamp))
+        data["file_size"] = file_mes["size"]
+        data["end_time"] = end_time
         print(data)
         insert_video_data(data)
 
@@ -283,15 +292,28 @@ def copy_yingshi_node_data(data):
     return node
 
 
-sched = BlockingScheduler()
+# 获取文件信息
+def getLenTime(filename):
+    command = ["ffprobe", "-loglevel", "quiet", "-print_format", "json", "-show_format", "-show_streams", "-i",
+               filename]
+    result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out = result.stdout.read()
+    # print(str(out))
+    temp = str(out.decode('utf-8'))
+    data = json.loads(temp)
+    file_message = {"size": data["format"]['size'], "time": data["format"]['duration']}
+    return file_message
 
-sched.add_job(my_job, 'cron', day='*', hour='0-23', minute=59, second=59)
 
-sched.start()
-
-# def main():
-#     my_job()
+# sched = BlockingScheduler()
 #
+# sched.add_job(my_job, 'cron', day='*', hour='0-23', minute=59, second=59)
 #
-# if __name__ == '__main__':
-#     main()
+# sched.start()
+
+def main():
+    my_job()
+
+
+if __name__ == '__main__':
+    main()
