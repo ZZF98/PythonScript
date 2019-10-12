@@ -21,7 +21,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for video_data
 -- ----------------------------
 DROP TABLE IF EXISTS `video_data`;
-CREATE TABLE `video_data`.`Untitled`  (
+CREATE TABLE `video_data`  (
   `id` int(32) NOT NULL AUTO_INCREMENT,
   `device_serial` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '设备序列号',
   `clinic_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '诊所名',
