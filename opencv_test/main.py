@@ -3,9 +3,8 @@ import time
 import cv2
 import numpy as np
 
-camera = cv2.VideoCapture("rtmp://rtmp01open.ys7.com/openlive/4924a5ef58e84be49f6722d50ed68224.hd")  # 参数0表示第一个摄像头
-# camera = cv2.VideoCapture("rtmp://rtmp01open.ys7.com/openlive/f91a803c64ad4a38ba697903b63e32b6.hd")  # 参数0表示第一个摄像头
-# camera = cv2.VideoCapture("C90843783_1570650823000_23_68907616224.MP4")  # 参数0表示第一个摄像头
+camera = cv2.VideoCapture("XXXXXXXXXXXXXXXXXXXXXXXXX")  # 参数0表示第一个摄像头
+
 # 判断视频是否打开
 if (camera.isOpened()):
     print('Open')
