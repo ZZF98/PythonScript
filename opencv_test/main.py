@@ -3,7 +3,11 @@ import time
 import cv2
 import numpy as np
 
-camera = cv2.VideoCapture("C90843783_1570678640000_29_68928085758.MP4")  # 参数0表示第一个摄像头
+camera = cv2.VideoCapture("C90843783_1570650823000_23_68907616224.MP4")  # 参数0表示第一个摄像头
+
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('output.avi', fourcc, 20.0,
+                      (int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)), int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))))
 # 判断视频是否打开
 if (camera.isOpened()):
     print('Open')
@@ -41,7 +45,8 @@ while True:
     diff = cv2.dilate(diff, es, iterations=2)  # 形态学膨胀
 
     # 显示矩形框
-    contours, hierarchy = cv2.findContours(diff.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 该函数计算一幅图像中目标的轮廓
+    # contours, hierarchy = cv2.findContours(diff.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 该函数计算一幅图像中目标的轮廓
+    img, contours, hierarchy = cv2.findContours(diff.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 该函数计算一幅图像中目标的轮廓
     # cv2.imshow("a", diff)
     # cv2.imshow("b", background)
     # cv2.imshow("c", gray_lwpCV)
@@ -72,7 +77,7 @@ while True:
     # 打印图片
     if sum == 0 or start:
         file_name = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
-        cv2.imwrite("D:\\video\\"+file_name + ".jpg", frame_lwpCV)
+        cv2.imwrite("D:\\video\\" + file_name + ".jpg", frame_lwpCV)
 
     # 更新背景图/初始化
     if sum >= 50:
@@ -86,6 +91,7 @@ while True:
         start = False
 
     cv2.imshow('contours', frame_lwpCV)
+    out.write(frame_lwpCV)
     cv2.imshow('dis', diff)
     key = cv2.waitKey(1) & 0xFF
     # 按'q'健退出循环
@@ -94,4 +100,5 @@ while True:
 
 # When everything done, release the capture
 camera.release()
+out.release()
 cv2.destroyAllWindows()

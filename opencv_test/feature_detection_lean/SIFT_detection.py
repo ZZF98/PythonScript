@@ -35,11 +35,14 @@ img=cv.drawKeypoints(gray,kp,img,flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
 cv.imwrite('sift_keypoints.jpg',img)
 """
 img = cv.drawKeypoints(gray, kp, img)
+cv.imshow('s', img)
+
 kp, des = sift.compute(gray, kp)
 cv.imshow('des', des)
+
 kp2, des2 = sift.detectAndCompute(gray, None)
 cv.imshow('des2', des2)
-cv.imshow('s', img)
+
 if cv.waitKey(0) & 0xff == 27:
     cv.destroyAllWindows()
 
