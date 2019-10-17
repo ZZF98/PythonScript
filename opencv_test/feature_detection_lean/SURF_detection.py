@@ -28,7 +28,7 @@ kp, des = surf.detectAndCompute(img, None)
 print("设置阈值后当前关键点个数：{}".format(len(kp)))
 # img = cv.drawKeypoints(gray, kp, img, flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 img2 = cv.drawKeypoints(img, kp, None, (255, 0, 0), 4)
-cv.imshow('s', img)
+cv.imshow('s', img2)
 k = cv.waitKey(0) & 0xFF
 if k == ord('q'):
     cv.destroyAllWindows()
