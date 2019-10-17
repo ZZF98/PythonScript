@@ -3,8 +3,7 @@ import time
 import cv2
 import numpy as np
 
-camera = cv2.VideoCapture("XXXXXXXXXXXXXXXXXXXXXXXXX")  # 参数0表示第一个摄像头
-
+camera = cv2.VideoCapture("C90843783_1570678640000_29_68928085758.MP4")  # 参数0表示第一个摄像头
 # 判断视频是否打开
 if (camera.isOpened()):
     print('Open')
@@ -21,6 +20,7 @@ kernel = np.ones((5, 5), np.uint8)
 background = None
 sum = 0
 pre_count = 0
+start = False
 
 while True:
     # 读取视频流
@@ -42,39 +42,48 @@ while True:
 
     # 显示矩形框
     contours, hierarchy = cv2.findContours(diff.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 该函数计算一幅图像中目标的轮廓
-    if len(contours) == 0 or len(contours) <= pre_count + 3 or pre_count - 3 <= len(contours):
-        # if len(contours) == pre_count or len(contours) == 0:
-        sum = sum + 1
-        print(sum)
-    else:
-        pre_count = len(contours)
-        sum = 0
-    cv2.imshow("a", diff)
-    cv2.imshow("b", background)
-    cv2.imshow("c", gray_lwpCV)
-    cv2.imshow("d", frame_lwpCV)
+    # cv2.imshow("a", diff)
+    # cv2.imshow("b", background)
+    # cv2.imshow("c", gray_lwpCV)
+    # cv2.imshow("d", frame_lwpCV)
     # cv2.accumulateWeighted(diff, background, 0.6, gray_lwpCV)
+    count = 0
     for c in contours:
         if cv2.contourArea(c) < 1700:  # 对于矩形区域，只显示大于给定阈值的轮廓，所以一些微小的变化不会显示。对于光照不变和噪声低的摄像头可不设定轮廓最小尺寸的阈值
             continue
         (x, y, w, h) = cv2.boundingRect(c)  # 该函数计算矩形的边界框
         # 过滤时间 640/50
-
         if x > 1190 and x < 1190 + 640 and y > 42 and y < 60 + 42:
             continue
+        count = count + 1
         cv2.rectangle(frame_lwpCV, (x, y), (x + w, y + h), (0, 255, 0), 2)
         # cv2.rectangle(frame_lwpCV, (1190, 42), (1190 + 640, 42 + 60), (0, 255, 0), 2)
 
-    if sum == 0:
-        file_name = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
-        cv2.imwrite(file_name + ".jpg", frame_lwpCV)
+    # 过滤
+    if len(contours) == 0 or count == 0 or len(contours) <= pre_count + 3:
+        # if len(contours) == pre_count or len(contours) == 0:
+        sum = sum + 1
+        print("contours:" + str(len(contours)) + "   pre_count:" + str(pre_count))
+    else:
+        pre_count = len(contours)
+        sum = 0
+        start = True
 
+    # 打印图片
+    if sum == 0 or start:
+        file_name = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
+        cv2.imwrite("D:\\video\\"+file_name + ".jpg", frame_lwpCV)
+
+    # 更新背景图/初始化
     if sum >= 50:
         print("更新background-------{}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+        grabbed, frame_lwpCV = camera.read()
         gray_lwpCV = cv2.cvtColor(frame_lwpCV, cv2.COLOR_BGR2GRAY)
         gray_lwpCV = cv2.GaussianBlur(gray_lwpCV, (21, 21), 0)
         background = gray_lwpCV
+        pre_count = 0
         sum = 0
+        start = False
 
     cv2.imshow('contours', frame_lwpCV)
     cv2.imshow('dis', diff)
