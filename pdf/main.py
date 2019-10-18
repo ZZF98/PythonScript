@@ -1,7 +1,14 @@
+import os
+
+from PIL import Image
 from PyPDF2 import PdfFileWriter, PdfFileReader
+from pdf2image import convert_from_path
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 
+
+# pip3 install pdf2image
+# https://github.com/Belval/pdf2image
 
 # 创建文字pdf
 def create_watermark(content):
@@ -40,13 +47,13 @@ def create_watermark(content):
 
 # 制作图片水印pdf
 def create_watermark(f_jpg, f_pdf):
-    w_pdf = 20 * cm
-    h_pdf = 25 * cm
+    w_pdf = 25 * cm
+    h_pdf = 30 * cm
 
     c = canvas.Canvas(f_pdf, pagesize=(w_pdf, h_pdf))
     c.setFillAlpha(0.5)  # 设置透明度
     # 这里的单位是物理尺寸
-    print(c.drawImage(f_jpg, 12 * cm, 17 * cm, 6 * cm, 6 * cm))
+    print(c.drawImage(f_jpg, 15.4 * cm, 23 * cm, 6 * cm, 6 * cm))
     c.save()
 
 
@@ -82,7 +89,68 @@ def add_watermark(pdf_file_in, pdf_file_mark, pdf_file_out):
         pdf_output.write(out)
 
 
+# pdf转png
+def pdf_pic(fn):
+    pages = convert_from_path(fn)
+    file_name = fn.split('.')[0]
+    for i in range(0, len(pages)):
+        new_name = file_name + str((i + 1))
+        pages[i].save(f"" + new_name + ".png", 'PNG')
+        print("生成图片：{}".format(new_name))
+
+
+def pic_add_watermark(fn, watermark):
+    file_name = fn.split('.')[0]
+    list = os.listdir(os.getcwd())
+    i = 0
+    file_list = []
+    # 寻找文件列表
+    for file in list:
+        if file_name in file and file.endswith(".png"):
+            print(file)
+            file_list.append(file)
+            i = i + 1
+    print(file_list)
+    print(i)
+    # 图片合成
+    for file in file_list:
+        background = Image.open(file)
+        foreground = Image.open(watermark)
+        background.paste(foreground, (background.size[0] - foreground.size[0], 20), foreground)
+        background.save(file)
+
+    im_list = []
+    for each_image in range(i):
+        try:
+            img = Image.open(file_name + str((each_image + 2)) + ".png")
+        except:
+            continue
+        if img.mode == "RGBA":
+            img = img.convert('RGB')
+            im_list.append(img)
+        else:
+            im_list.append(img)
+    new_pdf = file_name + "_watermark.pdf"
+    if not os.path.isfile(file_name + "_watermark.pdf"):  # 无文件时创建
+        fd = open(new_pdf, mode="w", encoding="utf-8")
+        fd.close()
+    pdf = Image.open(file_list[0])
+    pdf.save(new_pdf, "PDF", resolution=100.0, save_all=True, append_images=im_list)
+    for file in file_list:
+        os.remove(file)
+
+
+# 图片覆盖
+def test():
+    background = Image.open("曾炜口腔诊所-服务报告书首页4.png")
+    foreground = Image.open("a.jpg")
+    background.paste(foreground, (0, 0), foreground)
+    background.show()
+
+
 if __name__ == '__main__':
-    f_pdf = "mark.pdf"
-    create_watermark('b.jpg', f_pdf)
-    add_watermark("a.pdf", f_pdf, "c.pdf")
+    pdf_pic("曾炜口腔诊所-服务报告书首页.pdf")
+    pic_add_watermark("曾炜口腔诊所-服务报告书首页.pdf", "a.jpg")
+# f_pdf = "mark.pdf"
+# create_watermark('a.jpg', f_pdf)
+# add_watermark("曾炜口腔诊所-服务报告书首页.pdf", f_pdf, "c.pdf")
