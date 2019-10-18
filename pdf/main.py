@@ -4,21 +4,29 @@ from PIL import Image
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from pdf2image import convert_from_path
 from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
 
 # pip3 install pdf2image
-# https://github.com/Belval/pdf2image
+# https://github.com/Belval/pdf2image、
+# 中文支持
+# https://github.com/StellarCN/scp_zh/blob/master/fonts/SimSun.ttf
+# D:\python\Lib\site-packages\reportlab\fonts
 
 # 创建文字pdf
-def create_watermark(content):
+def create_watermark_content(content):
+    pdfmetrics.registerFont(TTFont("SimSun", "SimSun.ttf"))
     # 默认大小为21cm*29.7cm
     c = canvas.Canvas("mark.pdf", pagesize=(30 * cm, 30 * cm))
     # 移动坐标原点(坐标系左下为(0,0))
     c.translate(10 * cm, 5 * cm)
 
     # 设置字体
-    c.setFont("Helvetica", 80)
+    # c.setFont("Helvetica", 80)
+    # 中文
+    c.setFont("SimSun", 14)
     # 指定描边的颜色
     c.setStrokeColorRGB(0, 1, 0)
     # 指定填充颜色
@@ -60,7 +68,8 @@ def create_watermark(f_jpg, f_pdf):
 # 所有路径为绝对路径
 def add_watermark(pdf_file_in, pdf_file_mark, pdf_file_out):
     pdf_output = PdfFileWriter()
-    pdf_input = PdfFileReader(open(pdf_file_in, 'rb'))
+    input = open(pdf_file_in, 'rb')
+    pdf_input = PdfFileReader(input)
     # PDF文件被加密了
     if pdf_input.getIsEncrypted():
         print('该PDF文件被加密了.')
@@ -87,6 +96,7 @@ def add_watermark(pdf_file_in, pdf_file_mark, pdf_file_out):
 
     with open(pdf_file_out, 'wb') as out:
         pdf_output.write(out)
+    input.close()
 
 
 # pdf转png
@@ -99,6 +109,24 @@ def pdf_pic(fn):
         print("生成图片：{}".format(new_name))
 
 
+# 文字水印
+def creat_font_watermark(txt):
+    pdfmetrics.registerFont(TTFont("SimSun", "SimSun.ttf"))
+    # 默认大小为21cm*29.7cm
+    c = canvas.Canvas("mark.pdf", pagesize=(50 * cm, 25 * cm))
+    # 移动坐标原点(坐标系左下为(0,0))
+    c.translate(11 * cm, 20 * cm)
+    # 设置字体
+    # c.setFont("Helvetica", 80)
+    # 中文
+    c.setFont("SimSun", 30)
+    c.rotate(45)
+    c.setFillAlpha(0.7)
+    c.drawString(3 * cm, 0 * cm, txt)
+    c.save()
+
+
+# 图片添加水印
 def pic_add_watermark(fn, watermark):
     file_name = fn.split('.')[0]
     list = os.listdir(os.getcwd())
@@ -116,7 +144,7 @@ def pic_add_watermark(fn, watermark):
     for file in file_list:
         background = Image.open(file)
         foreground = Image.open(watermark)
-        background.paste(foreground, (background.size[0] - foreground.size[0], 20), foreground)
+        background.paste(foreground, (background.size[0] - foreground.size[0] - 200, 150), foreground)
         background.save(file)
 
     im_list = []
@@ -135,22 +163,30 @@ def pic_add_watermark(fn, watermark):
         fd = open(new_pdf, mode="w", encoding="utf-8")
         fd.close()
     pdf = Image.open(file_list[0])
+    # 保存pdf
     pdf.save(new_pdf, "PDF", resolution=100.0, save_all=True, append_images=im_list)
+    # 删除图片
     for file in file_list:
         os.remove(file)
+    return new_pdf
 
 
-# 图片覆盖
+# 图片覆盖demo
 def test():
-    background = Image.open("曾炜口腔诊所-服务报告书首页4.png")
+    background = Image.open("XXXXXXXXX.png")
     foreground = Image.open("a.jpg")
     background.paste(foreground, (0, 0), foreground)
     background.show()
 
 
 if __name__ == '__main__':
-    pdf_pic("曾炜口腔诊所-服务报告书首页.pdf")
-    pic_add_watermark("曾炜口腔诊所-服务报告书首页.pdf", "a.jpg")
-# f_pdf = "mark.pdf"
-# create_watermark('a.jpg', f_pdf)
-# add_watermark("曾炜口腔诊所-服务报告书首页.pdf", f_pdf, "c.pdf")
+    # creat_font_watermark("XXXXXXXXX。")
+    file_name = "XXXXXXXXX.pdf"
+    pdf_pic(file_name)
+    new_pdf = pic_add_watermark(file_name, "a.png")
+    # 添加文字水印
+    f_pdf = 'mark.pdf'
+    add_watermark(new_pdf, f_pdf, file_name)
+    os.remove(new_pdf)
+    # f_pdf = "mark.pdf"
+    # create_watermark('a.jpg', f_pdf)
