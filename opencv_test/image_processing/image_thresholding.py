@@ -82,6 +82,6 @@ for i in range(1, 256):
     if fn < fn_min:
         fn_min = fn
         thresh = i
-# 使用OpenCV函数查找大津的阈值
+# 使用OpenCV函数查找大概的阈值
 ret, otsu = cv.threshold(blur, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 print("{} {}".format(thresh, ret))
