@@ -5,7 +5,7 @@
 """
 import cv2 as cv
 
-img = cv.imread('s.png')
+img = cv.imread('a.png')
 imgray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 ret, thresh = cv.threshold(imgray, 127, 255, cv.THRESH_BINARY)
 """
