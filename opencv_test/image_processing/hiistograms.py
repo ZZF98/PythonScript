@@ -72,7 +72,7 @@ ret, thresh = cv.threshold(imgray, 127, 255, cv.THRESH_BINARY)
 contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 # 绘制图像中的所有轮廓:
 cv.drawContours(img, contours, -1, (0, 255, 0), 3)
-cv.imshow('自适应直方图后', img)
+cv.imshow('clahe_2.jpg', img)
 
 img = cv.imread('s.jpg')
 imgray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -80,9 +80,52 @@ ret, thresh = cv.threshold(imgray, 127, 255, cv.THRESH_BINARY)
 contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 # 绘制图像中的所有轮廓:
 cv.drawContours(img, contours, -1, (0, 255, 0), 3)
-cv.imshow('原图', img)
+cv.imshow('s.jpg', img)
 
 cv.waitKey(5000)
 cv.destroyAllWindows()
 
 # 2D直方图
+"""
+2D直方图使用相同的函数cv.calcHist()进行计算。
+对于颜色直方图，我们需要将图像从BGR转换为HSV。(记住，对于一维直方图，我们将BGR转换为灰度)。
+channels = [0,1] 需要同时处理H和S平面。
+bins = [180,256] H平面是180度，S平面是256度。
+range = [0,180,0,256]色调值介于0和180之间，饱和度介于0和256之间.
+"""
+import cv2 as cv
+
+img = cv.imread('apple.jpg')
+hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+hist = cv.calcHist([hsv], [0, 1], None, [180, 256], [0, 180, 0, 256])
+plt.imshow(hist, interpolation='nearest')
+# X轴表示S值，Y轴表示色调。
+plt.show()
+cv.waitKey(1000)
+cv.destroyAllWindows()
+
+# 直方图反向投影
+# roi是我们需要寻找的对象或对象区域
+roi = cv.imread('apple_s.jpg')
+hsv = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
+# 目标是我们搜索的图像
+target = cv.imread('apple.jpg')
+hsvt = cv.cvtColor(target, cv.COLOR_BGR2HSV)
+# 使用calcHist查找柱状图,也可以用np.histogram2d
+roihist = cv.calcHist([hsv], [0, 1], None, [180, 256], [0, 180, 0, 256])
+# 对直方图进行归一化并应用反向投影
+cv.normalize(roihist, roihist, 0, 255, cv.NORM_MINMAX)
+dst = cv.calcBackProject([hsvt], [0, 1], roihist, [0, 180, 0, 256], 1)
+# Now convolute with circular disc
+disc = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
+cv.filter2D(dst, -1, disc, dst)
+# 阈值和二进制
+ret, thresh = cv.threshold(dst, 50, 255, 0)
+thresh = cv.merge((thresh, thresh, thresh))
+res = cv.bitwise_and(target, thresh)
+res = np.vstack((target, thresh, res))
+cv.imshow('res.jpg', res)
+
+cv.waitKey(50000)
+cv.destroyAllWindows()
+
