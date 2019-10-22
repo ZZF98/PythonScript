@@ -160,7 +160,7 @@ def main(url, lists, sum):
 
             pageNumber = driver.find_elements_by_class_name("ui-pager")
             title = int(driver.find_element(By.CLASS_NAME, "grade-box,clearfix").find_elements(By.TAG_NAME, "dl")[
-                            1].find_element(By.TAG_NAME, "dd").get_attribute("title"))
+                            2].find_element(By.TAG_NAME, "dd").get_attribute("title"))
             print(title)
 
             if pageNumber == []:
@@ -186,7 +186,7 @@ def main(url, lists, sum):
                     print(driver.find_element_by_class_name("title-article").text)
                     title = int(
                         driver.find_element(By.CLASS_NAME, "grade-box,clearfix").find_elements(By.TAG_NAME, "dl")[
-                            1].find_element(By.TAG_NAME, "dd").get_attribute("title"))
+                            2].find_element(By.TAG_NAME, "dd").get_attribute("title"))
                     print(title)
                     # bsObj = driver.page_source
                     # print(bsObj)
