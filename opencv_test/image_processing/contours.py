@@ -4,8 +4,9 @@
 记住，要找的对象应该是白色的，背景应该是黑色的。
 """
 import cv2 as cv
+import numpy as np
 
-img = cv.imread('a.png')
+img = cv.imread('apple.jpg')
 imgray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 ret, thresh = cv.threshold(imgray, 127, 255, cv.THRESH_BINARY)
 """
@@ -32,8 +33,89 @@ cv.imshow('img2', img)
 cnt = contours[4]
 cv.drawContours(img, [cnt], 0, (0, 255, 0), 3)
 cv.imshow('img3', img)
-k = cv.waitKey(0) & 0xFF
+
+# 轮廓形状特征
+"""
+图像矩可以帮助你计算一些特征，如物体的质心，物体的面积等。
+"""
+img = cv.imread('d.jpg', 2)
+img2 = cv.imread('d.jpg')
+ret, thresh = cv.threshold(img, 127, 255, 0)
+contours, hierarchy = cv.findContours(thresh, 1, 2)
+cv.imshow('org', img2)
+cnt = contours[2]
+# Moments
+M = cv.moments(cnt)
+print(M)
+# 轮廓面积
+area = cv.contourArea(cnt)
+print(area)
+# 轮廓周长
+perimeter = cv.arcLength(cnt, True)
+print(perimeter)
+# 轮廓逼近
+epsilon = 0.1 * cv.arcLength(cnt, True)
+cv.imshow('epsilon', epsilon)
+approx = cv.approxPolyDP(cnt, epsilon, True)
+cv.imshow('approx', epsilon)
+# 任意方向矩形
+rect = cv.minAreaRect(cnt)
+box = cv.boxPoints(rect)
+box = np.int0(box)
+cv.drawContours(img2, [box], 0, (255, 255, 0), 3)
+cv.imshow('boxPoints', img2)
+# 圆
+(x, y), radius = cv.minEnclosingCircle(cnt)
+center = (int(x), int(y))
+radius = int(radius)
+cv.circle(img2, center, radius, (255, 255, 0), 2)
+cv.imshow('circle', img2)
+# 线
+rows, cols = img.shape[:2]
+[vx, vy, x, y] = cv.fitLine(cnt, cv.DIST_L2, 0, 0.01, 0.01)
+lefty = int((-x * vy / vx) + y)
+righty = int(((cols - x) * vy / vx) + y)
+cv.line(img2, (cols - 1, righty), (0, lefty), (255, 255, 0), 2)
+cv.imshow('line', img2)
+k = cv.waitKey(3000) & 0xFF
 if k == ord('q'):
     cv.destroyAllWindows()
 
-# 轮廓形状特征
+# 轮廓属性
+# 屏幕高宽比
+x, y, w, h = cv.boundingRect(cnt)
+aspect_ratio = float(w) / h
+print(aspect_ratio)
+# 大小
+area = cv.contourArea(cnt)
+x, y, w, h = cv.boundingRect(cnt)
+rect_area = w * h
+extent = float(area) / rect_area
+print(extent)
+# 体积
+area = cv.contourArea(cnt)
+hull = cv.convexHull(cnt)
+hull_area = cv.contourArea(hull)
+solidity = float(area) / hull_area
+print(solidity)
+# 直径
+area = cv.contourArea(cnt)
+equi_diameter = np.sqrt(4 * area / np.pi)
+# 方向
+(x, y), (MA, ma), angle = cv.fitEllipse(cnt)
+# 掩模和像素点
+mask = np.zeros(imgray.shape, np.uint8)
+cv.drawContours(mask, [cnt], 0, 255, -1)
+pixelpoints = np.transpose(np.nonzero(mask))
+# pixelpoints = cv.findNonZero(mask)
+# 最大值、最小值及其位置
+min_val, max_val, min_loc, max_loc = cv.minMaxLoc(imgray, mask=mask)
+# 平均颜色或平均强度
+# mean_val = cv.mean(im, mask=mask)
+# 极值点
+leftmost = tuple(cnt[cnt[:, :, 0].argmin()][0])
+rightmost = tuple(cnt[cnt[:, :, 0].argmax()][0])
+topmost = tuple(cnt[cnt[:, :, 1].argmin()][0])
+bottommost = tuple(cnt[cnt[:, :, 1].argmax()][0])
+
+
