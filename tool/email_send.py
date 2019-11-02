@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 class SendMail(object):
     def __init__(self, username, passwd, recv, title, content,
                  file=None, ssl=False,
-                 email_host='smtp.qq.com', port=25, ssl_port=465):
+                 email_host='smtp.qq.com', port=25, ssl_port=465, html=False):
         '''
         :param username: 用户名
         :param passwd: 密码
@@ -32,6 +32,7 @@ class SendMail(object):
         self.port = port  # 普通端口
         self.ssl = ssl  # 是否安全链接
         self.ssl_port = ssl_port  # 安全链接端口
+        self.html = html  # 是否html
 
     def send_mail(self):
         msg = MIMEMultipart()
@@ -50,7 +51,10 @@ class SendMail(object):
                 # 这里是处理文件名为中文名的，必须这么写
                 att["Content-Disposition"] = 'attachment; filename="%s"' % (new_file_name)
                 msg.attach(att)
-        msg.attach(MIMEText(self.content))  # 邮件正文的内容
+        if self.html:
+            msg.attach(MIMEText('{}'.format(self.content), 'html', 'utf-8'))
+        else:
+            msg.attach(MIMEText(self.content))  # 邮件正文的内容
         msg['Subject'] = self.title  # 邮件主题
         msg['From'] = self.username  # 发送者账号
         msg['To'] = ','.join(self.recv)  # 接收者账号列表
