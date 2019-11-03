@@ -1,3 +1,4 @@
+# 对服装图像进行分类
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 # 助手库
