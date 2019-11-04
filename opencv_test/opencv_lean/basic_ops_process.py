@@ -1,6 +1,7 @@
 import cv2 as cv
 from matplotlib import pyplot as plt
 
+# pip install opencv-python
 # 编辑图像处理
 img = cv.imread('a.jpg')
 # 行/列 返回BGR
