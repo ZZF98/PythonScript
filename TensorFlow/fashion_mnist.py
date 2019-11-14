@@ -146,7 +146,7 @@ model.compile(optimizer='adam',
 2.这个模型学会了把图像和标签联系起来
 3.您要求模型对一个测试集做出预测—在这个例子中:test_images数组,验证预测是否与test_labels数组中的标签匹配
 """
-# 要开始训练，请呼叫model.fit 方法——之所以这么叫，是因为它将模型“适合”于训练数据:
+# 要开始训练，使用model.fit 方法——之所以这么叫，是因为它将模型“适合”于训练数据:
 # 当模型训练时，显示损失和精度指标。该模型对训练数据的准确率约为0.9099(或90%)
 model.fit(train_images, train_labels, epochs=10)
 
