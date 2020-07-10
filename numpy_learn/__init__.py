@@ -1,5 +1,5 @@
 import sys
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 a = np.arange(20).reshape(4, 5)
@@ -114,3 +114,60 @@ for b in np.vsplit(a, 2):
 a = np.arange(12)
 b = a
 print(b)
+# view方法创建一个查看相同数据的新数组对象
+c = a.view()
+print(c is a)
+print(c.base is a)
+c.shape = 2, 6
+print(c)
+print(a.shape)
+# 深拷贝
+d = a.copy()
+print(d is a)
+print(d.base is a)
+d[0] = 9999
+print(d)
+print(a)
+print('-' * 40)
+# 花式索引和索引技巧
+a = np.arange(12) ** 2
+print(a)
+i = np.array([1, 1, 3, 8, 5])
+print(a[i])
+j = np.array([[3, 4], [9, 7]])
+print(a[j])
+a = np.arange(5)
+a[[1, 3, 4]] = 0
+print(a)
+print('-' * 40)
+# 使用布尔数组进行索引
+a = np.arange(12).reshape(3, 4)
+b = a > 4
+print(b)
+print(a[b])
+print('-' * 40)
+a = np.arange(12).reshape(3, 4)
+b1 = np.array([False, True, True])
+b2 = np.array([True, False, True, False])
+print(a)
+print(a[b1, :])
+print(a[:, b2])
+print(a[b1, b2])
+print('-*' * 40)
+# 矢量堆叠
+x = np.arange(0, 10, 2)
+print(x)
+y = np.arange(5)
+print(y)
+m = np.vstack([x, y])
+print(m)
+xy = np.hstack([x, y])
+print(xy)
+# 直方图
+mu, sigma = 2, 0.5
+v = np.random.normal(mu, sigma, 10000)
+plt.hist(v, bins=50, density=1)
+# plt.show()
+(n, bins) = np.histogram(v, bins=50, density=True)
+plt.plot(.5 * (bins[1:] + bins[:-1]), n)
+plt.show()
